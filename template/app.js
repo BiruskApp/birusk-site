@@ -139,6 +139,64 @@
     requestAnimationFrame(frame);
   }
 
+  // ── formulaire ─────────────────────────────────────────────────────────────
+  // Le jeton n'est demandé qu'au premier contact avec le formulaire : un
+  // visiteur qui ne fait que lire la page ne déclenche aucune requête.
+  const form = document.querySelector(".form");
+  if (form) {
+    const say = form.querySelector(".form-say");
+    const btn = form.querySelector(".send");
+    const dict = form.dataset;
+    let asked = false;
+
+    async function token() {
+      if (asked) return;
+      asked = true;
+      try {
+        const r = await fetch(form.action.replace(/contact$/, "token"), { headers: { accept: "application/json" } });
+        const { t, s } = await r.json();
+        form.elements.t.value = t;
+        form.elements.s.value = s;
+      } catch { asked = false; }
+    }
+    form.addEventListener("focusin", token, { once: true });
+
+    const tell = (msg, bad) => {
+      say.textContent = msg;
+      say.classList.add("form-say--on");
+      say.classList.toggle("form-say--bad", Boolean(bad));
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      form.classList.add("tried");
+      if (!form.checkValidity()) { tell(dict.invalid, true); form.reportValidity(); return; }
+
+      await token();
+      btn.disabled = true;
+      tell(dict.sending);
+
+      try {
+        const r = await fetch(form.action, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.ok) {
+          form.reset();
+          form.classList.remove("tried");
+          tell(dict.ok);
+          return;                       // le bouton reste éteint : rien à renvoyer
+        }
+        tell(r.status === 422 ? dict.invalid : dict.failed, true);
+      } catch {
+        tell(dict.failed, true);
+      }
+      btn.disabled = false;
+    });
+  }
+
   // ── ancres ─────────────────────────────────────────────────────────────────
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener("click", (e) => {

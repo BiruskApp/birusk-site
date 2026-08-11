@@ -365,6 +365,55 @@ html[lang="ckb"] .row-title { letter-spacing: 0; font-stretch: normal; line-heig
 html[lang="ckb"] .mail, html[lang="ckb"] .contact-title { letter-spacing: 0; font-stretch: normal; }
 .contact-lede { margin-block-start: clamp(24px, 4vw, 44px); color: var(--muted); max-width: 40ch; line-height: 1.6; }
 
+/* Formulaire. Des champs soulignés plutôt que des boîtes : le reste de la page
+   n'est fait que de filets et de texte, une boîte grise y ferait tache. */
+.form {
+  margin-block-start: clamp(40px, 6vw, 72px);
+  max-inline-size: 720px;
+  display: grid; gap: clamp(20px, 3vw, 30px);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.field--wide { grid-column: 1 / -1; }
+.field { display: grid; gap: 8px; }
+.field label {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 600; color: var(--muted);
+}
+.field input, .field textarea {
+  font: inherit; font-size: clamp(15px, 1.4vw, 17px); color: var(--fg);
+  background: transparent; border: 0; border-block-end: 1px solid var(--rule);
+  padding: 8px 0; border-radius: 0; /* iOS arrondit les champs par défaut */
+  transition: border-color .3s var(--ease);
+}
+.field textarea { resize: vertical; min-block-size: 96px; line-height: 1.6; }
+.field input:focus-visible, .field textarea:focus-visible {
+  outline: none; border-block-end-color: var(--accent);
+}
+/* Le rouge natif du navigateur ne se déclenche qu'après une tentative d'envoi,
+   pour ne pas signaler une erreur à quelqu'un qui n'a pas fini de saisir. */
+.form.tried :invalid { border-block-end-color: #b3261e; }
+
+.trap { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
+
+.form-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 18px 26px; }
+.send {
+  font: inherit; cursor: pointer; background: none; color: inherit;
+  display: inline-flex; align-items: center; gap: 8px; padding: 0 0 4px;
+  border: 0; border-block-end: 1px solid var(--accent);
+  font-size: 13px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700;
+}
+.send span { transition: transform .35s var(--ease); }
+.send:hover span { transform: translate(3px, -3px); }
+.send[disabled] { opacity: .45; cursor: default; }
+.send[disabled]:hover span { transform: none; }
+
+.form-say {
+  font-size: 13px; line-height: 1.5; color: var(--muted);
+  opacity: 0; transition: opacity .4s var(--ease);
+}
+.form-say--on { opacity: 1; }
+.form-say--bad { color: #b3261e; }
+
 /* ── pied ─────────────────────────────────────────────────────────────────── */
 
 .ftr {

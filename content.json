@@ -176,6 +176,33 @@
       "fr": "Écrivez en français, en anglais ou en kurde. Réponse sous deux jours.",
       "en": "Write in French, English or Kurdish. Reply within two days.",
       "ckb": "بە فەرەنسی، ئینگلیزی یان کوردی بنووسە. لە ماوەی دوو ڕۆژدا وەڵام دەدرێتەوە."
+    },
+    "form": {
+      "name":    { "fr": "Nom",     "en": "Name",    "ckb": "ناو" },
+      "email":   { "fr": "Email",   "en": "Email",   "ckb": "ئیمەیڵ" },
+      "message": { "fr": "Message", "en": "Message", "ckb": "نامە" },
+      "send":    { "fr": "Envoyer", "en": "Send",    "ckb": "ناردن" },
+      "sending": { "fr": "Envoi…",  "en": "Sending…", "ckb": "دەنێردرێت…" },
+      "ok": {
+        "fr": "Message envoyé. Réponse sous deux jours.",
+        "en": "Message sent. Reply within two days.",
+        "ckb": "نامەکە نێردرا. لە ماوەی دوو ڕۆژدا وەڵام دەدرێتەوە."
+      },
+      "invalid": {
+        "fr": "Nom, email et message sont nécessaires.",
+        "en": "Name, email and message are required.",
+        "ckb": "ناو، ئیمەیڵ و نامە پێویستن."
+      },
+      "failed": {
+        "fr": "L'envoi a échoué. Écrivez directement à l'adresse ci-dessus.",
+        "en": "Sending failed. Write directly to the address above.",
+        "ckb": "ناردن سەرکەوتوو نەبوو. ڕاستەوخۆ بۆ ئەم ناونیشانە بنووسە."
+      },
+      "noscript": {
+        "fr": "Le formulaire demande JavaScript. Écrivez à l'adresse ci-dessus.",
+        "en": "The form needs JavaScript. Write to the address above.",
+        "ckb": "فۆرمەکە پێویستی بە جاڤاسکریپتە. بۆ ناونیشانەکەی سەرەوە بنووسە."
+      }
     }
   },
 

@@ -154,6 +154,38 @@
     <h3 class="contact-title reveal">{{contact.title}}</h3>
     <a class="mail reveal" style="--d:120ms" href="mailto:{{site.email}}" data-cursor="mail" data-magnet>{{site.email}}</a>
     <p class="contact-lede reveal" style="--d:260ms">{{contact.lede}}</p>
+
+    <form class="form reveal" style="--d:340ms" method="post" action="{{base}}/api/contact"
+          data-ok="{{contact.form.ok}}" data-invalid="{{contact.form.invalid}}" data-failed="{{contact.form.failed}}"
+          data-sending="{{contact.form.sending}}" data-send="{{contact.form.send}}">
+      <input type="hidden" name="lang" value="{{lang}}">
+      <input type="hidden" name="t" value="">
+      <input type="hidden" name="s" value="">
+
+      <!-- appât : masqué par le CSS, seul un automate le remplit -->
+      <div class="trap" aria-hidden="true">
+        <label>Site<input type="text" name="site" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <div class="field">
+        <label for="f-name">{{contact.form.name}}</label>
+        <input id="f-name" name="name" type="text" required minlength="2" maxlength="80" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="f-email">{{contact.form.email}}</label>
+        <input id="f-email" name="email" type="email" required maxlength="120" autocomplete="email">
+      </div>
+      <div class="field field--wide">
+        <label for="f-message">{{contact.form.message}}</label>
+        <textarea id="f-message" name="message" required minlength="10" maxlength="4000" rows="4"></textarea>
+      </div>
+
+      <div class="form-foot">
+        <button class="send" type="submit" data-cursor="link">{{contact.form.send}} <span aria-hidden="true">↗</span></button>
+        <p class="form-say" role="status" aria-live="polite"></p>
+      </div>
+      <noscript><p class="form-say form-say--on">{{contact.form.noscript}}</p></noscript>
+    </form>
   </section>
 
 </main>
