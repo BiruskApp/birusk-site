@@ -14,55 +14,75 @@
 </head>
 <body>
 
-<div class="stage">
-  <header class="top">
-    <span>{{site.name}}<sup>®</sup></span>
-    <a href="{{base}}/">v1 ↗</a>
-  </header>
+<header class="top">
+  <span>{{site.name}}<sup>®</sup> — {{site.role}}</span>
+  <a href="{{base}}/">v1 ↗</a>
+</header>
 
-  <div class="who">
-    <h1>{{site.name}}<span>{{site.role}}</span></h1>
-    <p>{{meta.description}}</p>
-    <a class="mail4" href="mailto:{{site.email}}">{{site.email}}</a>
-  </div>
+<!-- Texte et carte forment une seule unité : sur grand écran l'un se place à
+     gauche et l'autre sur la roue, sur téléphone ils se suivent simplement. -->
+<div class="deck">
 
-  <div class="wheel">
-
-    {{#each work.items}}
-    <a class="slot slot--shot" href="{{href}}" rel="noopener" target="_blank">
-      <span class="slot-fill"><img src="{{../base}}/{{shot.src}}" alt="{{shot.alt}}" loading="lazy" decoding="async"></span>
-      <span class="slot-mark">{{../work.label}}</span>
+  {{#each work.items}}
+  <article class="item">
+    <div class="panel">
+      <span class="kind">{{../work.label}}</span>
+      <h2>{{name}}</h2>
+      <p>{{body}}</p>
+      <a class="go" href="{{href}}" rel="noopener" target="_blank">{{cta}} ↗</a>
+    </div>
+    <a class="slot slot--shot" href="{{href}}" rel="noopener" target="_blank" tabindex="-1" aria-hidden="true">
+      <span class="slot-fill"><img src="{{../base}}/{{shot.src}}" alt="" loading="lazy" decoding="async"></span>
       <span class="slot-label">{{name}}</span>
     </a>
-    {{/each}}
+  </article>
+  {{/each}}
 
-    {{#each services.items}}
-    <div class="slot{{#if dark}} slot--dark{{/if}}">
-      <span class="slot-figure" aria-hidden="true">{{n}}</span>
-      <span class="slot-mark">{{../services.label}}</span>
+  {{#each services.items}}
+  <article class="item">
+    <div class="panel">
+      <span class="kind">{{../services.label}}</span>
+      <h2>{{title}}</h2>
+      <p>{{body}}</p>
+    </div>
+    <div class="slot{{#if dark}} slot--dark{{/if}}" aria-hidden="true">
+      <span class="slot-figure">{{n}}</span>
       <span class="slot-label">{{title}}</span>
     </div>
-    {{/each}}
+  </article>
+  {{/each}}
 
-    <div class="slot slot--ink">
-      <span class="slot-figure" aria-hidden="true">05</span>
-      <span class="slot-mark">{{studio.label}}</span>
-      <span class="slot-label" lang="kmr" dir="ltr">{{studio.title}}</span>
+  <article class="item">
+    <div class="panel">
+      <span class="kind">{{studio.label}}</span>
+      <h2 lang="kmr" dir="ltr">{{studio.title}}</h2>
+      {{#each studio.body}}<p>{{this}}</p>{{/each}}
     </div>
+    <div class="slot slot--ink" aria-hidden="true">
+      <span class="slot-figure">05</span>
+      <span class="slot-label" lang="kmr" dir="ltr">{{studio.gloss}}</span>
+    </div>
+  </article>
 
-    <a class="slot slot--dark" href="mailto:{{site.email}}">
-      <span class="slot-figure" aria-hidden="true">06</span>
-      <span class="slot-mark">{{contact.label}}</span>
-      <span class="slot-label">{{contact.title}}</span>
+  <article class="item">
+    <div class="panel">
+      <span class="kind">{{contact.label}}</span>
+      <h2>{{contact.title}}</h2>
+      <p>{{contact.lede}}</p>
+      <a class="go" href="mailto:{{site.email}}">{{site.email}} ↗</a>
+    </div>
+    <a class="slot slot--dark" href="mailto:{{site.email}}" tabindex="-1" aria-hidden="true">
+      <span class="slot-figure">06</span>
+      <span class="slot-label">{{contact.label}}</span>
     </a>
+  </article>
 
-  </div>
-
-  <nav class="dots" aria-hidden="true">
-    <i class="on"></i><i></i><i></i><i></i><i></i><i></i>
-  </nav>
-  <p class="hint">{{hero.scroll}} ↓</p>
 </div>
+
+<nav class="dots" aria-hidden="true">
+  <i class="on"></i><i></i><i></i><i></i><i></i><i></i>
+</nav>
+<p class="hint">{{hero.scroll}} ↓</p>
 
 <div class="rail" aria-hidden="true"></div>
 

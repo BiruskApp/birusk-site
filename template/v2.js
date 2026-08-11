@@ -14,20 +14,21 @@
 (() => {
   "use strict";
 
-  const wheel = document.querySelector(".wheel");
+  const deck = document.querySelector(".deck");
   const rail = document.querySelector(".rail");
-  if (!wheel || !rail) return;
+  if (!deck || !rail) return;
 
-  const slots = [...wheel.querySelectorAll(".slot")];
+  const items = [...deck.querySelectorAll(".item")];
+  const slots = items.map((it) => it.querySelector(".slot"));
   const dots = [...document.querySelectorAll(".dots i")];
-  const count = slots.length;
+  const count = items.length;
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const narrow = matchMedia("(max-width: 900px)");
   const flat = () => narrow.matches;
 
-  const R = 38;        // rayon de la roue, en rem
-  const STEP = 68;     // angle entre deux cabines, en degrés
+  const R = 40;        // rayon de la roue, en rem
+  const STEP = 76;     // angle entre deux cabines, en degrés
   const SEEN = 2;      // cabines conservées de part et d'autre
   const rad = (deg) => (deg * Math.PI) / 180;
 
@@ -54,9 +55,12 @@
       slot.style.zIndex = String(100 - Math.round(Math.abs(d) * 10));
     });
 
+    // Le texte de gauche suit la carte : il bascule à mi-chemin, quand la
+    // cabine suivante a pris le dessus.
     const near = Math.round(p);
     if (near !== shown) {
       shown = near;
+      items.forEach((it, i) => it.classList.toggle("on", i === near));
       dots.forEach((dot, i) => dot.classList.toggle("on", i === near));
     }
   }
@@ -77,13 +81,15 @@
 
   function mode() {
     if (flat()) {
-      slots.forEach((s) => { s.style.transform = ""; s.style.opacity = ""; s.style.visibility = ""; });
+      slots.forEach((s) => { s.style.transform = ""; s.style.opacity = ""; s.style.visibility = ""; s.style.zIndex = ""; });
+      items.forEach((it) => it.classList.remove("on"));
     } else {
       place();
     }
   }
 
   rail.style.setProperty("--count", count);
+  items[0].classList.add("on");   // avant le premier défilement, la première parle
   for (const ev of ["scroll", "wheel", "touchstart", "touchmove", "keydown"])
     addEventListener(ev, wake, { passive: true });
   addEventListener("resize", () => { mode(); wake(); }, { passive: true });
