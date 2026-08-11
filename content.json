@@ -54,7 +54,34 @@
     "items": [
       {
         "name": "Zanyari",
-        "meta": "iOS · 2026",
+        "shot": {
+          "src": "assets/zanyari.webp",
+          "w": 680,
+          "h": 1472,
+          "alt": {
+            "fr": "L'écran d'accueil de Zanyari : une anecdote à la une, puis une liste d'articles illustrés.",
+            "en": "The Zanyari home screen: a featured story, then a list of illustrated articles.",
+            "ckb": "پەڕەی سەرەکی زانیاری: چیرۆکێکی سەرەکی، پاشان لیستی بابەتە وێنەدارەکان."
+          }
+        },
+        "facts": [
+          {
+            "label": { "fr": "Rôle", "en": "Role", "ckb": "ڕۆڵ" },
+            "value": {
+              "fr": "Conception et développement",
+              "en": "Design and development",
+              "ckb": "دیزاین و گەشەپێدان"
+            }
+          },
+          {
+            "label": { "fr": "Plateforme", "en": "Platform", "ckb": "پلاتفۆرم" },
+            "value": { "fr": "iOS", "en": "iOS", "ckb": "iOS" }
+          },
+          {
+            "label": { "fr": "Sortie", "en": "Released", "ckb": "بڵاوکرایەوە" },
+            "value": { "fr": "Mai 2026", "en": "May 2026", "ckb": "ئایاری ٢٠٢٦" }
+          }
+        ],
         "tagline": {
           "fr": "Anecdotes, légendes et savoir kurdes.",
           "en": "Kurdish anecdotes, legends and knowledge.",

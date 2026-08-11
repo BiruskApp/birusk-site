@@ -218,36 +218,47 @@ html[lang="ckb"] .sec-intro { line-height: 1.35; letter-spacing: 0; font-stretch
 
 /* ── 01 travaux ───────────────────────────────────────────────────────────── */
 
-/* Le panneau se révèle par une translation à l'intérieur d'un cadre qui coupe.
-   Une transformation est composée par le GPU, contrairement à un clip-path
-   animé qui repeint à chaque frame. */
-.piece-face {
-  position: relative; display: grid; place-items: center;
-  block-size: clamp(300px, 52vh, 560px);
-  border: 1px solid var(--rule); overflow: hidden;
-  background: var(--bg);
+/* L'appareil est dessiné en CSS plutôt qu'incrusté dans l'image : un cadre en
+   pixels vieillit mal et pèse, alors qu'une bordure arrondie reste nette à
+   toutes les densités d'écran et ne coûte pas un octet de plus. */
+.piece { display: grid; gap: clamp(32px, 5vw, 80px); align-items: center; }
+
+.piece-shot { display: block; justify-self: center; inline-size: min(100%, 340px); }
+.device {
+  display: block; padding: 7px; border-radius: 44px; background: var(--fg);
+  transition: transform .5s var(--ease);
 }
-.piece-inner {
-  display: grid; place-items: center; inline-size: 100%; block-size: 100%;
+.device img {
+  inline-size: 100%; block-size: auto; border-radius: 37px; display: block;
+  background: var(--tint);
 }
-html.js .piece-inner { transform: translateY(101%); }
-html.js .piece-face.in .piece-inner {
-  transform: none; transition: transform 1.05s var(--ease);
-}
-.piece-name {
-  font-size: clamp(2.6rem, 13.5vw, 13rem); font-weight: 800; font-stretch: 120%;
-  letter-spacing: -.055em; text-transform: uppercase; line-height: 1;
-  color: transparent; -webkit-text-stroke: 1.2px var(--fg);
+@media (hover: hover) and (pointer: fine) {
+  .piece-shot:hover .device { transform: translateY(-8px); }
 }
 
-.piece-body { display: grid; gap: clamp(20px, 4vw, 56px); padding-block-start: clamp(26px, 3vw, 44px); }
-.piece-lead h3 {
+.piece-body { max-inline-size: 56ch; }
+.piece-title {
   font-size: clamp(2rem, 6.2vw, 4.4rem); font-weight: 800; font-stretch: 110%;
   letter-spacing: -.042em; line-height: 1; text-transform: uppercase;
 }
-html[lang="ckb"] .piece-lead h3, html[lang="ckb"] .piece-name { letter-spacing: 0; font-stretch: normal; }
+html[lang="ckb"] .piece-title { letter-spacing: 0; font-stretch: normal; }
 .piece-tagline { color: var(--muted); font-size: clamp(15px, 1.6vw, 21px); margin-block-start: 10px; }
-.piece-detail p { max-width: 52ch; line-height: 1.65; font-size: clamp(14px, 1.2vw, 17px); }
+.piece-text { max-width: 52ch; line-height: 1.65; font-size: clamp(14px, 1.2vw, 17px); margin-block-start: clamp(18px, 2vw, 26px); }
+
+/* La fiche : deux colonnes qui restent alignées quelle que soit la longueur
+   des intitulés, et qui se replient l'une sous l'autre sur petit écran. */
+.facts { margin-block-start: clamp(24px, 3vw, 34px); border-block-start: 1px solid var(--rule); }
+.fact {
+  display: grid; grid-template-columns: 11ch 1fr; gap: 16px;
+  padding-block: 11px; border-block-end: 1px solid var(--rule);
+}
+.fact dt {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 600; color: var(--muted); padding-block-start: 3px;
+}
+.fact dd { margin: 0; font-size: clamp(14px, 1.2vw, 16px); }
+@media (max-width: 460px) { .fact { grid-template-columns: 1fr; gap: 2px; } }
+
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-block-start: 22px; }
 .tags li {
   font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
@@ -264,7 +275,12 @@ html[lang="ckb"] .piece-lead h3, html[lang="ckb"] .piece-name { letter-spacing: 
 .link-arrow span { transition: transform .35s var(--ease); }
 .link-arrow:hover span { transform: translate(3px, -3px); }
 
-@media (min-width: 900px) { .piece-body { grid-template-columns: 1fr 1fr; align-items: start; } }
+/* Au-delà de 900px, l'écran et le texte se font face. En deçà, l'écran passe
+   au-dessus : on voit le produit avant d'en lire la description. */
+@media (min-width: 900px) {
+  .piece { grid-template-columns: minmax(260px, 340px) 1fr; }
+  .piece-shot { justify-self: start; }
+}
 
 .more { margin-block-start: clamp(40px, 6vw, 80px); color: var(--muted); font-size: 13px; letter-spacing: .06em; }
 
@@ -370,5 +386,5 @@ html.js .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
-  html.js .reveal, html.js .ln .ch, html.js .piece-inner { opacity: 1; transform: none; }
+  html.js .reveal, html.js .ln .ch { opacity: 1; transform: none; }
 }

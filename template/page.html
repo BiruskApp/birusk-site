@@ -77,24 +77,25 @@
 
     {{#each work.items}}
     <article class="piece">
-      <a class="piece-face" href="{{href}}" rel="noopener" target="_blank" data-cursor="view" aria-label="{{name}}">
-        <span class="piece-inner"><span class="piece-name" aria-hidden="true">{{name}}</span></span>
+      <a class="piece-shot reveal" href="{{href}}" rel="noopener" target="_blank" data-cursor="view" aria-label="{{name}} — {{cta}}">
+        <span class="device">
+          <img src="{{base}}/{{shot.src}}" width="{{shot.w}}" height="{{shot.h}}" alt="{{shot.alt}}" loading="lazy" decoding="async">
+        </span>
       </a>
       <div class="piece-body">
-        <div class="piece-lead">
-          <h3 class="reveal">{{name}}</h3>
-          <p class="piece-tagline reveal" style="--d:80ms">{{tagline}}</p>
-        </div>
-        <div class="piece-detail">
-          <p class="reveal" style="--d:160ms">{{body}}</p>
-          <ul class="tags reveal" style="--d:240ms">
-            <li>{{meta}}</li>
-            {{#each tags}}<li>{{this}}</li>{{/each}}
-          </ul>
-          <a class="link-arrow reveal" style="--d:320ms" href="{{href}}" rel="noopener" target="_blank" data-cursor="link">
-            {{cta}} <span aria-hidden="true">↗</span>
-          </a>
-        </div>
+        <h3 class="piece-title reveal">{{name}}</h3>
+        <p class="piece-tagline reveal" style="--d:80ms">{{tagline}}</p>
+        <p class="piece-text reveal" style="--d:160ms">{{body}}</p>
+        <dl class="facts reveal" style="--d:220ms">
+          {{#each facts}}<div class="fact"><dt>{{label}}</dt><dd>{{value}}</dd></div>
+          {{/each}}
+        </dl>
+        <ul class="tags reveal" style="--d:280ms">
+          {{#each tags}}<li>{{this}}</li>{{/each}}
+        </ul>
+        <a class="link-arrow reveal" style="--d:340ms" href="{{href}}" rel="noopener" target="_blank" data-cursor="link">
+          {{cta}} <span aria-hidden="true">↗</span>
+        </a>
       </div>
     </article>
     {{/each}}

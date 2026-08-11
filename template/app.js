@@ -25,7 +25,7 @@
   });
 
   // ── révélations ────────────────────────────────────────────────────────────
-  const marks = [...document.querySelectorAll(".reveal, .ln, .piece-face")];
+  const marks = [...document.querySelectorAll(".reveal, .ln")];
   if (reduced) {
     marks.forEach((el) => el.classList.add("in"));
   } else {
