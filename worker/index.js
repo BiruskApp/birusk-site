@@ -9,12 +9,13 @@
  *   POST /api/contact   valide le message et l'expédie à contact@birusk.app
  */
 
-/* Destination provisoire. Zoho refuse un message se réclamant de birusk.app
-   tant que le SPF du domaine n'autorise pas les serveurs de Cloudflare, ce qui
-   est le comportement attendu d'une protection anti-usurpation. Dès que
-   `include:_spf.mx.cloudflare.net` figure dans le SPF, remettre
-   contact@birusk.app ici et retirer l'adresse Gmail de wrangler.jsonc. */
-const DEST = "jiyankawa@gmail.com";
+/* Unique destination possible : wrangler.jsonc restreint la liaison à cette
+   seule adresse, si bien qu'une erreur de code ne peut pas expédier ailleurs.
+   Zoho n'accepte ces messages que si le SPF du domaine autorise les serveurs
+   de Cloudflare (`include:_spf.mx.cloudflare.net`) : sans cela, la remise est
+   refusée, ce qui est le comportement attendu d'une protection
+   anti-usurpation. */
+const DEST = "contact@birusk.app";
 const FROM = { email: "formulaire@birusk.app", name: "Formulaire birusk.app" };
 
 const LIMITS = { name: [2, 80], email: [5, 120], message: [10, 4000] };
