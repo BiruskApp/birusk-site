@@ -14,95 +14,57 @@
 </head>
 <body>
 
-<header class="top">
-  <a href="{{base}}/v2/">{{site.name}}<sup>®</sup></a>
-  <a href="{{base}}/">v1 ↗</a>
-</header>
+<div class="stage">
+  <header class="top">
+    <span>{{site.name}}<sup>®</sup></span>
+    <a href="{{base}}/">v1 ↗</a>
+  </header>
 
-<section class="intro">
-  <h1>{{hero.lede}}</h1>
-  <p>{{meta.description}}</p>
-</section>
+  <div class="who">
+    <h1>{{site.name}}<span>{{site.role}}</span></h1>
+    <p>{{meta.description}}</p>
+    <a class="mail4" href="mailto:{{site.email}}">{{site.email}}</a>
+  </div>
 
-<div class="rail">
-  <div class="scene">
+  <div class="wheel">
 
     {{#each work.items}}
-    <article class="card">
-      <div class="card-head">
-        <span>01</span>
-        <span>{{../work.label}}</span>
-      </div>
-      <div class="card-mid">
-        <h2>{{name}}</h2>
-        <p>{{body}}</p>
-        <a class="go" href="{{href}}" rel="noopener" target="_blank">{{cta}} ↗</a>
-      </div>
-      <div class="card-foot">
-        <span>{{tagline}}</span>
-        <span>{{#each facts}}{{value}} · {{/each}}</span>
-      </div>
-      <div class="card-shot">
-        <img src="{{../base}}/{{shot.src}}" width="{{shot.w}}" height="{{shot.h}}" alt="{{shot.alt}}" loading="lazy" decoding="async">
-      </div>
-    </article>
+    <a class="slot slot--shot" href="{{href}}" rel="noopener" target="_blank">
+      <span class="slot-fill"><img src="{{../base}}/{{shot.src}}" alt="{{shot.alt}}" loading="lazy" decoding="async"></span>
+      <span class="slot-mark">{{../work.label}}</span>
+      <span class="slot-label">{{name}}</span>
+    </a>
     {{/each}}
 
     {{#each services.items}}
-    <article class="card{{#if dark}} card--dark{{/if}}">
-      <div class="card-head">
-        <span>{{n}}</span>
-        <span>{{../services.label}}</span>
-      </div>
-      <div class="card-mid">
-        <h2>{{title}}</h2>
-        <p>{{body}}</p>
-      </div>
-      <div class="card-foot">
-        <span>{{../services.intro}}</span>
-        <span>{{../site.domain}}</span>
-      </div>
-    </article>
+    <div class="slot{{#if dark}} slot--dark{{/if}}">
+      <span class="slot-figure" aria-hidden="true">{{n}}</span>
+      <span class="slot-mark">{{../services.label}}</span>
+      <span class="slot-label">{{title}}</span>
+    </div>
     {{/each}}
 
-    <article class="card card--soft">
-      <div class="card-head">
-        <span>05</span>
-        <span>{{studio.label}}</span>
-      </div>
-      <div class="card-mid">
-        <h2 lang="kmr" dir="ltr">{{studio.title}}</h2>
-        {{#each studio.body}}<p>{{this}}</p>{{/each}}
-      </div>
-      <div class="card-foot">
-        <span>{{studio.gloss}}</span>
-        <span>{{site.wordmarkKurdish}}</span>
-      </div>
-    </article>
+    <div class="slot slot--ink">
+      <span class="slot-figure" aria-hidden="true">05</span>
+      <span class="slot-mark">{{studio.label}}</span>
+      <span class="slot-label" lang="kmr" dir="ltr">{{studio.title}}</span>
+    </div>
 
-    <article class="card card--dark">
-      <div class="card-head">
-        <span>06</span>
-        <span>{{contact.label}}</span>
-      </div>
-      <div class="card-mid">
-        <h2>{{contact.title}}</h2>
-        <a class="mail3" href="mailto:{{site.email}}">{{site.email}}</a>
-        <p>{{contact.lede}}</p>
-      </div>
-      <div class="card-foot">
-        <span>{{footer.madeIn}}</span>
-        <span>© {{year}} {{site.name}}®</span>
-      </div>
-    </article>
+    <a class="slot slot--dark" href="mailto:{{site.email}}">
+      <span class="slot-figure" aria-hidden="true">06</span>
+      <span class="slot-mark">{{contact.label}}</span>
+      <span class="slot-label">{{contact.title}}</span>
+    </a>
 
   </div>
+
+  <nav class="dots" aria-hidden="true">
+    <i class="on"></i><i></i><i></i><i></i><i></i><i></i>
+  </nav>
+  <p class="hint">{{hero.scroll}} ↓</p>
 </div>
 
-<footer class="foot">
-  <span class="count">01 / 06</span>
-  <span>{{hero.scroll}} ↓</span>
-</footer>
+<div class="rail" aria-hidden="true"></div>
 
 <script>{{{vendor}}}</script>
 <script>{{{js}}}</script>
