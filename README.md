@@ -132,7 +132,9 @@ correspondants.
 
 ## Licence
 
-© Birusk. Tous droits réservés.
+© Birusk. Tous droits réservés. Le code est publié pour consultation ; le
+contenu, les textes et l'identité ne sont pas réutilisables sans accord.
 
-Le code est publié pour consultation. Le contenu, les textes, l'identité et les
-polices ne sont pas réutilisables sans accord.
+Les polices font exception : **Archivo** et **Noto Kufi Arabic** sont publiées
+sous SIL Open Font License 1.1 et restent libres selon ses termes. Voir
+[`assets/fonts/LICENSE.txt`](assets/fonts/LICENSE.txt).
