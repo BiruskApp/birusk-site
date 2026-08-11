@@ -205,14 +205,21 @@ async function build() {
   const data2 = localize(content, def, def);
   const html2 = v2({
     ...data2,
-    // les cartes sont numérotées d'un seul tenant : 01 pour le projet,
-    // 02 à 04 pour les services, puis le studio et le contact
+    // Les cartes sont numérotées d'un seul tenant : 01 pour le projet, 02 à 04
+    // pour les services, puis le studio et le contact. Une carte sur deux passe
+    // en sombre : c'est ce battement qui donne au jeu son rythme quand les
+    // cartes se succèdent en profondeur.
     services: {
       ...data2.services,
-      items: data2.services.items.map((it, i) => ({ ...it, n: String(i + 2).padStart(2, "0"), i: i + 1 })),
+      items: data2.services.items.map((it, i) => ({
+        ...it, n: String(i + 2).padStart(2, "0"), dark: i % 2 === 0,
+      })),
     },
     lang: def, base: "..", dir: LANGS[def].dir,
     css: await readFile(join(ROOT, "template/v2.css"), "utf8"),
+    // Lenis est versé au dépôt et intégré à la page : aucune requête vers un
+    // tiers, et rien à installer pour construire le site.
+    vendor: await readFile(join(ROOT, "vendor/lenis.min.js"), "utf8"),
     js: await readFile(join(ROOT, "template/v2.js"), "utf8"),
     year: content.buildYear ?? new Date().getFullYear(),
   });

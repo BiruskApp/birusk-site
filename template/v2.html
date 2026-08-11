@@ -3,103 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script>document.documentElement.classList.add("js")</script>
 <title>{{site.name}} — v2</title>
 <meta name="description" content="{{meta.description}}">
-<meta name="theme-color" content="#0e0d0c">
-<!-- terrain d'essai : hors index, pour ne pas concurrencer le site dans les moteurs -->
+<meta name="theme-color" content="#f6f6f6">
+<!-- terrain d'essai : hors index, pour ne pas concurrencer le site -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preload" href="{{base}}/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230e0d0c'/><path d='M19 3 9 18h5l-2 11 11-16h-6z' fill='%23e0a020'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23f6f6f6'/><path d='M19 3 9 18h5l-2 11 11-16h-6z' fill='%230a0a0a'/></svg>">
 <style>{{{css}}}</style>
 </head>
 <body>
 
-<header class="bar">
-  <a href="{{base}}/v2/">{{site.name}}<sup>®</sup> v2</a>
-  <a class="back" href="{{base}}/">← v1</a>
+<header class="top">
+  <a href="{{base}}/v2/">{{site.name}}<sup>®</sup></a>
+  <a href="{{base}}/">v1 ↗</a>
 </header>
 
-<main>
+<section class="intro">
+  <h1>{{hero.lede}}</h1>
+  <p>{{meta.description}}</p>
+</section>
 
-  <section class="open">
-    <span class="ku" aria-hidden="true">{{site.wordmarkKurdish}}</span>
-    <p class="tag up">{{hero.scroll}} ↓</p>
-    <h1 class="up" style="--d:60ms">{{#each hero.lines}}{{this}} {{/each}}</h1>
-    <p class="up" style="--d:180ms">{{hero.lede}}</p>
-  </section>
-
-  <div class="stack">
+<div class="rail">
+  <div class="scene">
 
     {{#each work.items}}
-    <article class="card card--split up" style="--i:0">
-      <div class="card-top">
-        <span class="num">01</span>
-        <span class="kind">{{../work.label}}</span>
+    <article class="card">
+      <div class="card-head">
+        <span>01</span>
+        <span>{{../work.label}}</span>
       </div>
-      <div class="card-body">
+      <div class="card-mid">
         <h2>{{name}}</h2>
-        <p class="lead">{{tagline}}</p>
         <p>{{body}}</p>
-        <ul class="facts2">
-          {{#each facts}}<li>{{label}} · {{value}}</li>{{/each}}
-          {{#each tags}}<li>{{this}}</li>{{/each}}
-        </ul>
-        <a class="go" href="{{href}}" rel="noopener" target="_blank">{{cta}} <span aria-hidden="true">↗</span></a>
+        <a class="go" href="{{href}}" rel="noopener" target="_blank">{{cta}} ↗</a>
       </div>
-      <div class="shot">
+      <div class="card-foot">
+        <span>{{tagline}}</span>
+        <span>{{#each facts}}{{value}} · {{/each}}</span>
+      </div>
+      <div class="card-shot">
         <img src="{{../base}}/{{shot.src}}" width="{{shot.w}}" height="{{shot.h}}" alt="{{shot.alt}}" loading="lazy" decoding="async">
       </div>
     </article>
     {{/each}}
 
     {{#each services.items}}
-    <article class="card up" style="--i:{{i}}">
-      <div class="card-top">
-        <span class="num">{{n}}</span>
-        <span class="kind">{{../services.label}}</span>
+    <article class="card{{#if dark}} card--dark{{/if}}">
+      <div class="card-head">
+        <span>{{n}}</span>
+        <span>{{../services.label}}</span>
       </div>
-      <div class="card-body">
+      <div class="card-mid">
         <h2>{{title}}</h2>
-        <p class="lead">{{body}}</p>
+        <p>{{body}}</p>
       </div>
-      <p>{{../services.intro}}</p>
+      <div class="card-foot">
+        <span>{{../services.intro}}</span>
+        <span>{{../site.domain}}</span>
+      </div>
     </article>
     {{/each}}
 
-    <article class="card up" style="--i:4">
-      <div class="card-top">
-        <span class="num">05</span>
-        <span class="kind">{{studio.label}}</span>
+    <article class="card card--soft">
+      <div class="card-head">
+        <span>05</span>
+        <span>{{studio.label}}</span>
       </div>
-      <div class="card-body">
+      <div class="card-mid">
         <h2 lang="kmr" dir="ltr">{{studio.title}}</h2>
-        <p class="lead">{{studio.gloss}}</p>
         {{#each studio.body}}<p>{{this}}</p>{{/each}}
+      </div>
+      <div class="card-foot">
+        <span>{{studio.gloss}}</span>
+        <span>{{site.wordmarkKurdish}}</span>
       </div>
     </article>
 
-    <article class="card up" style="--i:5">
-      <div class="card-top">
-        <span class="num">06</span>
-        <span class="kind">{{contact.label}}</span>
+    <article class="card card--dark">
+      <div class="card-head">
+        <span>06</span>
+        <span>{{contact.label}}</span>
       </div>
-      <div class="card-body">
+      <div class="card-mid">
         <h2>{{contact.title}}</h2>
-        <a class="mail2" href="mailto:{{site.email}}">{{site.email}}</a>
+        <a class="mail3" href="mailto:{{site.email}}">{{site.email}}</a>
         <p>{{contact.lede}}</p>
+      </div>
+      <div class="card-foot">
+        <span>{{footer.madeIn}}</span>
+        <span>© {{year}} {{site.name}}®</span>
       </div>
     </article>
 
   </div>
-</main>
+</div>
 
-<footer class="end">
-  <span>© {{year}} {{site.name}}®</span>
-  <span>{{footer.madeIn}}</span>
-  <span>{{footer.rights}}</span>
+<footer class="foot">
+  <span class="count">01 / 06</span>
+  <span>{{hero.scroll}} ↓</span>
 </footer>
 
+<script>{{{vendor}}}</script>
 <script>{{{js}}}</script>
 </body>
 </html>

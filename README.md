@@ -75,7 +75,11 @@ Un sous-ensemble volontairement réduit, suffisant pour un site de cette taille.
 **Aucune dépendance.** Ni framework, ni générateur tiers, ni chaîne de
 compilation. Le seul paquet installé est `wrangler`, et uniquement pour publier.
 Un site de cinq sections n'a pas besoin de plus, et ce qu'on n'installe pas ne
-casse pas trois ans plus tard.
+casse pas trois ans plus tard. Seule exception, hors du site lui-même : la v2
+utilise [Lenis](https://github.com/darkroomengineering/lenis) pour le
+défilement inertiel. Sa copie est versée dans `vendor/` et intégrée à la page,
+si bien qu'il n'y a ni installation pour construire, ni requête vers un tiers
+pour consulter.
 
 **Le poids d'abord.** CSS et JavaScript sont intégrés à la page : le navigateur
 obtient tout ce dont il a besoin en une seule requête, ce qui compte davantage
@@ -110,6 +114,8 @@ assets/
   fonts/         Archivo (latin, latin étendu), Kufi (arabe)
   og-*.png       images de partage, une par langue
   logo.png
+worker/          seul code serveur : /api/contact et /api/token
+vendor/          Lenis, versé au dépôt pour la v2
 dist/            sortie du build, non versionnée
 ```
 
@@ -135,6 +141,8 @@ correspondants.
 © Birusk. Tous droits réservés. Le code est publié pour consultation ; le
 contenu, les textes et l'identité ne sont pas réutilisables sans accord.
 
-Les polices font exception : **Archivo** et **Noto Kufi Arabic** sont publiées
-sous SIL Open Font License 1.1 et restent libres selon ses termes. Voir
-[`assets/fonts/LICENSE.txt`](assets/fonts/LICENSE.txt).
+Deux exceptions. Les polices **Archivo** et **Noto Kufi Arabic** sont publiées
+sous SIL Open Font License 1.1 et restent libres selon ses termes — voir
+[`assets/fonts/LICENSE.txt`](assets/fonts/LICENSE.txt). **Lenis** est sous
+licence MIT, © darkroom.engineering — voir
+[`vendor/LICENSE-lenis.txt`](vendor/LICENSE-lenis.txt).
