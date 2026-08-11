@@ -1,0 +1,161 @@
+{
+  "site": {
+    "name": "Birusk",
+    "domain": "birusk.app",
+    "email": "contact@birusk.app",
+    "wordmarkKurdish": "بروسک"
+  },
+
+  "languages": ["fr", "en", "ckb"],
+  "defaultLanguage": "fr",
+
+  "meta": {
+    "title": {
+      "fr": "Birusk, studio indépendant. Applications et sites pour le Kurdistan.",
+      "en": "Birusk, independent studio. Apps and websites for Kurdistan.",
+      "ckb": "بروسک، ستودیۆی سەربەخۆ. ئەپ و ماڵپەڕ بۆ کوردستان."
+    },
+    "description": {
+      "fr": "Birusk conçoit des applications et des sites internet pour le Kurdistan et sa diaspora. Éditeur de Zanyari.",
+      "en": "Birusk designs apps and websites for Kurdistan and its diaspora. Publisher of Zanyari.",
+      "ckb": "بروسک ئەپ و ماڵپەڕ بۆ کوردستان و دیاسپۆرا دروست دەکات. بڵاوکەرەوەی زانیاری."
+    }
+  },
+
+  "nav": {
+    "work":     { "fr": "Travaux",  "en": "Work",     "ckb": "کارەکان" },
+    "services": { "fr": "Services", "en": "Services", "ckb": "خزمەتگوزاری" },
+    "studio":   { "fr": "Studio",   "en": "Studio",   "ckb": "ستودیۆ" },
+    "contact":  { "fr": "Contact",  "en": "Contact",  "ckb": "پەیوەندی" }
+  },
+
+  "hero": {
+    "lines": [
+      { "fr": "Construisons",   "en": "Building",       "ckb": "کوردستانی" },
+      { "fr": "le Kurdistan",   "en": "the Kurdistan",  "ckb": "ئەمڕۆ و سبەینێ" },
+      { "fr": "d'aujourd'hui",  "en": "of today",       "ckb": "دروست" },
+      { "fr": "et de demain.",  "en": "and tomorrow.",  "ckb": "بکەین." }
+    ],
+    "sub": {
+      "fr": "Avec les enseignements de notre passé.",
+      "en": "With the lessons of our past.",
+      "ckb": "بە فێرکارییەکانی ڕابردوومان."
+    },
+    "lede": {
+      "fr": "Studio indépendant. Applications, sites internet, identités. Pour le Kurdistan et sa diaspora.",
+      "en": "Independent studio. Apps, websites, identities. For Kurdistan and its diaspora.",
+      "ckb": "ستودیۆی سەربەخۆ. ئەپ، ماڵپەڕ، ناسنامە. بۆ کوردستان و دیاسپۆرا."
+    },
+    "scroll": { "fr": "Faites défiler", "en": "Scroll", "ckb": "بەرەو خوارەوە" }
+  },
+
+  "work": {
+    "label": { "fr": "Travaux", "en": "Work", "ckb": "کارەکان" },
+    "items": [
+      {
+        "name": "Zanyari",
+        "meta": "iOS · 2026",
+        "tagline": {
+          "fr": "Anecdotes, légendes et savoir kurdes.",
+          "en": "Kurdish anecdotes, legends and knowledge.",
+          "ckb": "چیرۆک، ئەفسانە و زانیاری کوردی."
+        },
+        "body": {
+          "fr": "Une application qui rassemble la mémoire kurde et la rend lisible chaque jour, en cinq langues. Publiée sur l'App Store, portée par un couple kurde.",
+          "en": "An app that gathers Kurdish memory and makes it readable every day, in five languages. Published on the App Store, built by a Kurdish couple.",
+          "ckb": "ئەپێک کە یادەوەری کوردی کۆدەکاتەوە و ڕۆژانە دەیخاتە بەردەست، بە پێنج زمان. لە ئەپ ستۆر بڵاوکراوەتەوە."
+        },
+        "tags": ["SwiftUI", "Firebase", "5 langues"],
+        "href": "https://zanyari.app",
+        "cta": { "fr": "Voir le projet", "en": "View project", "ckb": "بینینی پرۆژە" }
+      }
+    ],
+    "more": {
+      "fr": "D'autres projets arrivent.",
+      "en": "More projects coming.",
+      "ckb": "پرۆژەی تر لە ڕێگەدان."
+    }
+  },
+
+  "services": {
+    "label": { "fr": "Services", "en": "Services", "ckb": "خزمەتگوزاری" },
+    "intro": {
+      "fr": "Trois choses, faites correctement.",
+      "en": "Three things, done properly.",
+      "ckb": "سێ شت، بە باشی کراو."
+    },
+    "items": [
+      {
+        "num": "01",
+        "title": { "fr": "Applications mobiles", "en": "Mobile applications", "ckb": "ئەپی مۆبایل" },
+        "body": {
+          "fr": "iOS et Android, en natif. De l'idée à la publication sur les stores.",
+          "en": "iOS and Android, native. From idea to store release.",
+          "ckb": "iOS و ئەندرۆید، بە شێوەی سەرەکی. لە بیرۆکەوە تا بڵاوکردنەوە."
+        }
+      },
+      {
+        "num": "02",
+        "title": { "fr": "Sites internet", "en": "Websites", "ckb": "ماڵپەڕ" },
+        "body": {
+          "fr": "Rapides partout, y compris sur une connexion mobile à Hewlêr. Hébergement compris.",
+          "en": "Fast everywhere, including on a mobile connection in Hewlêr. Hosting included.",
+          "ckb": "خێرا لە هەموو شوێنێک، تەنانەت بە ئینتەرنێتی مۆبایل لە هەولێر. هۆستینگ لەگەڵدایە."
+        }
+      },
+      {
+        "num": "03",
+        "title": { "fr": "Identité", "en": "Identity", "ckb": "ناسنامە" },
+        "body": {
+          "fr": "Nom, logo, typographie, couleurs. Un système, pas une image isolée.",
+          "en": "Name, logo, type, colour. A system, not a single image.",
+          "ckb": "ناو، لۆگۆ، فۆنت، ڕەنگ. سیستەمێک، نەک وێنەیەکی تاک."
+        }
+      }
+    ]
+  },
+
+  "studio": {
+    "label": { "fr": "Studio", "en": "Studio", "ckb": "ستودیۆ" },
+    "_note": "title reste en kurmancî sur toutes les langues, volontairement. gloss est la traduction discrète.",
+    "title": "Birusk… Kî ne em?",
+    "gloss": {
+      "fr": "Birusk, qui sommes-nous ?",
+      "en": "Birusk, who are we?",
+      "ckb": "بروسک، ئێمە کێین؟"
+    },
+    "body": [
+      {
+        "fr": "Birusk naît de l'amour d'un couple pour son pays, sa culture et son histoire. D'une même volonté de transmettre, et de sauvegarder une identité forte pour les générations qui viennent.",
+        "en": "Birusk was born from a couple's love for their country, its culture and its history. From a shared will to pass on, and to safeguard a strong identity for the generations to come.",
+        "ckb": "بروسک لە خۆشەویستی ژن و مێردێک بۆ وڵات، کولتوور و مێژووی خۆیان لەدایک بوو. لە ویستێکی هاوبەش بۆ گواستنەوە و پاراستنی ناسنامەیەکی بەهێز بۆ نەوەکانی داهاتوو."
+      },
+      {
+        "fr": "Chaque projet répond à une intention précise : apporter des solutions au peuple kurde, où qu'il se trouve.",
+        "en": "Every project answers a precise intent: to bring solutions to the Kurdish people, wherever they are.",
+        "ckb": "هەموو پرۆژەیەک مەبەستێکی دیاریکراوی هەیە: پێشکەشکردنی چارەسەر بۆ گەلی کورد، لە هەر شوێنێک بێت."
+      }
+    ]
+  },
+
+  "contact": {
+    "label": { "fr": "Contact", "en": "Contact", "ckb": "پەیوەندی" },
+    "title": {
+      "fr": "Un projet ?",
+      "en": "Got a project?",
+      "ckb": "پرۆژەیەکت هەیە؟"
+    },
+    "lede": {
+      "fr": "Écrivez en français, en anglais ou en kurde. Réponse sous deux jours.",
+      "en": "Write in French, English or Kurdish. Reply within two days.",
+      "ckb": "بە فەرەنسی، ئینگلیزی یان کوردی بنووسە. لە ماوەی دوو ڕۆژدا وەڵام دەدرێتەوە."
+    }
+  },
+
+  "marquee": ["Zanyari", "Birusk®", "Kurdistan", "Applications", "Sites internet", "Diaspora"],
+
+  "footer": {
+    "rights": { "fr": "Tous droits réservés.", "en": "All rights reserved.", "ckb": "هەموو مافەکان پارێزراون." },
+    "madeIn": { "fr": "France et Kurdistan", "en": "France and Kurdistan", "ckb": "فەرەنسا و کوردستان" }
+  }
+}

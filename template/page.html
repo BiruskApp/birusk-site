@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>document.documentElement.classList.add("js")</script>
+<title>{{meta.title}}</title>
+<meta name="description" content="{{meta.description}}">
+<meta name="theme-color" content="#f4f1eb">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{site.name}}">
+<meta property="og:title" content="{{meta.title}}">
+<meta property="og:description" content="{{meta.description}}">
+<meta property="og:url" content="{{canonical}}">
+<meta property="og:locale" content="{{ogLocale}}">
+{{#each ogAlternates}}<meta property="og:locale:alternate" content="{{this}}">
+{{/each}}<meta property="og:image" content="{{origin}}/assets/og-{{lang}}.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{site.name}} — {{meta.description}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{meta.title}}">
+<meta name="twitter:description" content="{{meta.description}}">
+<meta name="twitter:image" content="{{origin}}/assets/og-{{lang}}.png">
+<link rel="canonical" href="{{canonical}}">
+{{#each langLinks}}<link rel="alternate" hreflang="{{code}}" href="{{url}}">
+{{/each}}<link rel="alternate" hreflang="x-default" href="{{origin}}/">
+<!-- une seule police préchargée, celle que la langue en cours utilise vraiment -->
+<link rel="preload" href="{{base}}/assets/fonts/{{preloadFont}}" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23f4f1eb'/><path d='M19 3 9 18h5l-2 11 11-16h-6z' fill='%23a86a05'/></svg>">
+<style>{{{css}}}</style>
+<script type="application/ld+json">{{{jsonld}}}</script>
+</head>
+<body>
+
+<div class="cursor" aria-hidden="true"><i class="cursor-dot"></i><i class="cursor-ring"></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="hdr">
+  <a class="wordmark" href="{{base}}/" data-cursor="link">{{site.name}}<sup>®</sup></a>
+  <nav class="nav" aria-label="{{nav.work}}">
+    <a href="#work"     data-cursor="link">{{nav.work}}</a>
+    <a href="#services" data-cursor="link">{{nav.services}}</a>
+    <a href="#studio"   data-cursor="link">{{nav.studio}}</a>
+    <a href="#contact"  data-cursor="link">{{nav.contact}}</a>
+  </nav>
+  <nav class="langs" aria-label="Langue">
+    {{#each langLinks}}<a href="{{href}}" hreflang="{{code}}" lang="{{code}}"{{#if current}} class="on" aria-current="true"{{/if}} data-cursor="link">{{label}}</a>{{/each}}
+  </nav>
+  <span class="progress" aria-hidden="true"></span>
+</header>
+
+<main id="main">
+
+  <!-- 00 ─────────────────────────────────────────────── -->
+  <section class="hero">
+    <span class="watermark" aria-hidden="true">{{site.wordmarkKurdish}}</span>
+    <h1 class="hero-type">
+      {{#each hero.lines}}<span class="ln" data-split>{{this}}</span>
+      {{/each}}
+    </h1>
+    <p class="hero-sub reveal" style="--d:560ms">{{hero.sub}}</p>
+    <p class="hero-lede reveal" style="--d:680ms">{{hero.lede}}</p>
+    <div class="scroll-hint reveal" style="--d:800ms">
+      <span class="bolt" aria-hidden="true"></span>
+      <span>{{hero.scroll}}</span>
+    </div>
+  </section>
+
+  <!-- 01 ─────────────────────────────────────────────── -->
+  <section class="sec sec--tint work" id="work">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2 class="sec-label">{{work.label}}</h2>
+    </div>
+
+    {{#each work.items}}
+    <article class="piece">
+      <a class="piece-face" href="{{href}}" rel="noopener" target="_blank" data-cursor="view" aria-label="{{name}}">
+        <span class="piece-inner"><span class="piece-name" aria-hidden="true">{{name}}</span></span>
+      </a>
+      <div class="piece-body">
+        <div class="piece-lead">
+          <h3 class="reveal">{{name}}</h3>
+          <p class="piece-tagline reveal" style="--d:80ms">{{tagline}}</p>
+        </div>
+        <div class="piece-detail">
+          <p class="reveal" style="--d:160ms">{{body}}</p>
+          <ul class="tags reveal" style="--d:240ms">
+            <li>{{meta}}</li>
+            {{#each tags}}<li>{{this}}</li>{{/each}}
+          </ul>
+          <a class="link-arrow reveal" style="--d:320ms" href="{{href}}" rel="noopener" target="_blank" data-cursor="link">
+            {{cta}} <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </article>
+    {{/each}}
+
+    <p class="more reveal">{{work.more}}</p>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        {{#each marqueeLoop}}<span>{{this}}</span><i>✳</i>{{/each}}
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 ─────────────────────────────────────────────── -->
+  <section class="sec services" id="services">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2 class="sec-label">{{services.label}}</h2>
+    </div>
+    <p class="sec-intro reveal">{{services.intro}}</p>
+    <ul class="rows">
+      {{#each services.items}}
+      <li class="row reveal" style="--d:{{@index}}20ms" data-cursor="link">
+        <span class="row-num">{{num}}</span>
+        <h3 class="row-title">{{title}}</h3>
+        <p class="row-body">{{body}}</p>
+      </li>
+      {{/each}}
+    </ul>
+  </section>
+
+  <!-- 03 ─────────────────────────────────────────────── -->
+  <section class="sec sec--tint studio" id="studio">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2 class="sec-label">{{studio.label}}</h2>
+    </div>
+    <div class="studio-grid">
+      <div class="studio-heading">
+        <h3 class="studio-title reveal" lang="kmr" dir="ltr">{{studio.title}}</h3>
+        <p class="studio-gloss reveal" style="--d:100ms">{{studio.gloss}}</p>
+      </div>
+      <div class="studio-body">
+        {{#each studio.body}}<p class="reveal" style="--d:{{@index}}40ms">{{this}}</p>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ─────────────────────────────────────────────── -->
+  <section class="sec contact" id="contact">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2 class="sec-label">{{contact.label}}</h2>
+    </div>
+    <h3 class="contact-title reveal">{{contact.title}}</h3>
+    <a class="mail reveal" style="--d:120ms" href="mailto:{{site.email}}" data-cursor="mail" data-magnet>{{site.email}}</a>
+    <p class="contact-lede reveal" style="--d:260ms">{{contact.lede}}</p>
+  </section>
+
+</main>
+
+<footer class="ftr">
+  <span>© {{year}} {{site.name}}®</span>
+  <span class="ftr-mid">{{footer.madeIn}}</span>
+  <span>{{footer.rights}}</span>
+</footer>
+
+<script>{{{js}}}</script>
+</body>
+</html>

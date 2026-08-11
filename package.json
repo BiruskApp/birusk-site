@@ -1,0 +1,15 @@
+{
+  "name": "birusk-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Site vitrine de Birusk. Statique, trilingue fr/en/ckb, déployé sur Cloudflare Workers.",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch --serve",
+    "deploy": "node build.mjs && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.120.1"
+  }
+}

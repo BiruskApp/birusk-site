@@ -1,0 +1,18 @@
+# Dépendances — réinstallables depuis package-lock.json
+node_modules/
+
+# Sortie du build — régénérée par `node build.mjs`, jamais éditée à la main
+dist/
+
+# État local de wrangler
+.wrangler/
+
+# Secrets : ne doivent jamais entrer dans l'historique
+.dev.vars
+.env
+.env.*
+*_token
+cf_token
+
+# macOS
+.DS_Store

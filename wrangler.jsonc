@@ -1,0 +1,19 @@
+{
+  // Worker statique : aucun code serveur, uniquement des fichiers.
+  // Les requêtes vers les assets statiques ne sont pas facturées.
+  "name": "birusk-site",
+  "compatibility_date": "2026-08-10",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  // Domaines personnalisés : Cloudflare crée et maintient les enregistrements
+  // DNS lui-même. Sans effet sur les MX, la messagerie Zoho n'est pas concernée.
+  "routes": [
+    { "pattern": "birusk.app", "custom_domain": true },
+    { "pattern": "www.birusk.app", "custom_domain": true }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
