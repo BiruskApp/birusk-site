@@ -197,36 +197,6 @@ async function build() {
     written.push({ lang, bytes: Buffer.byteLength(html) });
   }
 
-  // ── v2 ─────────────────────────────────────────────────────────────────────
-  // Terrain d'essai : même contenu, autre direction artistique. Langue par
-  // défaut seulement, et hors index — ce n'est pas une seconde version du site
-  // mais une proposition à regarder.
-  const v2 = compile(await readFile(join(ROOT, "template/v2.html"), "utf8"));
-  const data2 = localize(content, def, def);
-  const html2 = v2({
-    ...data2,
-    // Les cartes sont numérotées d'un seul tenant : 01 pour le projet, 02 à 04
-    // pour les services, puis le studio et le contact. Une carte sur deux passe
-    // en sombre : c'est ce battement qui donne au jeu son rythme quand les
-    // cartes se succèdent en profondeur.
-    services: {
-      ...data2.services,
-      items: data2.services.items.map((it, i) => ({
-        ...it, n: String(i + 2).padStart(2, "0"), dark: i % 2 === 0,
-      })),
-    },
-    lang: def, base: "..", dir: LANGS[def].dir,
-    css: await readFile(join(ROOT, "template/v2.css"), "utf8"),
-    // Lenis est versé au dépôt et intégré à la page : aucune requête vers un
-    // tiers, et rien à installer pour construire le site.
-    vendor: await readFile(join(ROOT, "vendor/lenis.min.js"), "utf8"),
-    js: await readFile(join(ROOT, "template/v2.js"), "utf8"),
-    year: content.buildYear ?? new Date().getFullYear(),
-  });
-  await mkdir(join(DIST, "v2"), { recursive: true });
-  await writeFile(join(DIST, "v2", "index.html"), html2, "utf8");
-  written.push({ lang: "v2", bytes: Buffer.byteLength(html2) });
-
   await writeFile(join(DIST, "_headers"), HEADERS, "utf8");
   await writeFile(join(DIST, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: https://${content.site.domain}/sitemap.xml\n`, "utf8");
   await writeFile(join(DIST, "sitemap.xml"), sitemap(content), "utf8");

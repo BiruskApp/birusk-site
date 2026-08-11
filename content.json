@@ -3,12 +3,7 @@
     "name": "Birusk",
     "domain": "birusk.app",
     "email": "contact@birusk.app",
-    "wordmarkKurdish": "بروسک",
-    "role": {
-      "fr": "Studio indépendant",
-      "en": "Independent studio",
-      "ckb": "ستودیۆی سەربەخۆ"
-    }
+    "wordmarkKurdish": "بروسک"
   },
 
   "languages": ["fr", "en", "ckb"],

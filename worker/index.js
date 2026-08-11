@@ -91,9 +91,9 @@ const page = (lang, kind, status) => {
     `<!doctype html><html lang="${lang}" dir="${dir}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Birusk</title>
 <meta name="robots" content="noindex"><style>
-body{margin:0;min-height:100svh;display:grid;place-items:center;background:#f4f1eb;color:#0d0d0e;
+body{margin:0;min-height:100svh;display:grid;place-items:center;background:#ffffff;color:#0d0d0e;
 font:400 17px/1.6 "Helvetica Neue",Arial,sans-serif;padding:24px;text-align:center}
-p{max-width:44ch;margin:0 0 26px}a{color:#a86a05;font-weight:700;text-transform:uppercase;
+p{max-width:44ch;margin:0 0 26px}a{color:#9d1b2f;font-weight:700;text-transform:uppercase;
 font-size:13px;letter-spacing:.06em;border-bottom:1px solid currentColor;text-decoration:none;padding-bottom:3px}
 </style></head><body><div><p>${esc(t[kind])}</p><a href="/">${esc(t.back)}</a></div></body></html>`,
     { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } },
@@ -117,8 +117,8 @@ function compose(f, request) {
   const html =
     `<div style="font:400 15px/1.65 -apple-system,Helvetica,Arial,sans-serif;color:#0d0d0e">` +
     `<p style="white-space:pre-wrap;margin:0 0 24px">${esc(f.message)}</p>` +
-    `<table style="border-collapse:collapse;font-size:13px;color:#6b675f">` +
-    `<tr><td style="padding:3px 16px 3px 0">De</td><td><a href="mailto:${esc(f.email)}" style="color:#a86a05">${esc(f.name)} &lt;${esc(f.email)}&gt;</a></td></tr>` +
+    `<table style="border-collapse:collapse;font-size:13px;color:#6b6b72">` +
+    `<tr><td style="padding:3px 16px 3px 0">De</td><td><a href="mailto:${esc(f.email)}" style="color:#9d1b2f">${esc(f.name)} &lt;${esc(f.email)}&gt;</a></td></tr>` +
     `<tr><td style="padding:3px 16px 3px 0">Langue</td><td>${esc(f.lang)}</td></tr>` +
     `<tr><td style="padding:3px 16px 3px 0">Pays</td><td>${esc(pays)}</td></tr>` +
     `<tr><td style="padding:3px 16px 3px 0">Reçu le</td><td>${esc(quand)}</td></tr>` +
