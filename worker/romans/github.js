@@ -7,9 +7,12 @@
  */
 
 const DEPOT = "BiruskApp/Books";
-const BRANCHE = "main";
 const API = "https://api.github.com";
 const FRAICHEUR = 60;   // secondes
+
+/* Branche lue. `main` en production ; l'écraser sert à éprouver l'interface sur
+   une branche d'essai sans rien publier dans le canon. */
+const branche = (env) => env.ROMANS_GH_BRANCHE || "main";
 
 export class DepotIndisponible extends Error {
   constructor(raison, statut) {
@@ -60,7 +63,7 @@ async function appel(chemin, env, { brut = false } = {}) {
 /** Arborescence complète du dépôt : un seul appel, tout le reste en découle. */
 export async function arborescence(env) {
   const donnees = await appel(
-    `/repos/${DEPOT}/git/trees/${BRANCHE}?recursive=1`, env,
+    `/repos/${DEPOT}/git/trees/${branche(env)}?recursive=1`, env,
   );
   return (donnees.tree ?? [])
     .filter((n) => n.type === "blob")
@@ -68,7 +71,7 @@ export async function arborescence(env) {
 }
 
 export const fichier = (chemin, env) =>
-  appel(`/repos/${DEPOT}/contents/${encodeURI(chemin)}?ref=${BRANCHE}`, env, { brut: true });
+  appel(`/repos/${DEPOT}/contents/${encodeURI(chemin)}?ref=${branche(env)}`, env, { brut: true });
 
 /** Les propositions en attente de validation. */
 export async function propositions(env) {
@@ -88,7 +91,7 @@ export async function propositions(env) {
 
 /** Les derniers commits fusionnés — le fil d'activité du chantier. */
 export async function activite(env) {
-  const liste = await appel(`/repos/${DEPOT}/commits?sha=${BRANCHE}&per_page=15`, env);
+  const liste = await appel(`/repos/${DEPOT}/commits?sha=${branche(env)}&per_page=15`, env);
   return liste.map((c) => ({
     sha: c.sha.slice(0, 7),
     message: (c.commit?.message ?? "").split("\n")[0],
@@ -98,5 +101,5 @@ export async function activite(env) {
   }));
 }
 
-export const lienDepot = (chemin) =>
-  `https://github.com/${DEPOT}/blob/${BRANCHE}/${chemin}`;
+export const lienDepot = (chemin, env) =>
+  `https://github.com/${DEPOT}/blob/${env?.ROMANS_GH_BRANCHE || "main"}/${chemin}`;

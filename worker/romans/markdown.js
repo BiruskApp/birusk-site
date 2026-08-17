@@ -176,9 +176,13 @@ export function tableau(source, titreSection = null) {
   if (titreSection) {
     const debut = texte.search(new RegExp(`^#{1,6}\\s+${titreSection}\\s*$`, "mi"));
     if (debut === -1) return [];
-    const reste = texte.slice(debut);
-    const fin = reste.slice(1).search(/^#{1,6}\s+/m);
-    texte = fin === -1 ? reste : reste.slice(0, fin + 1);
+    // On repart après la ligne de titre : sans cela, la recherche du titre
+    // suivant retomberait sur celui-ci et la section serait vide.
+    const apresTitre = texte.indexOf("\n", debut);
+    if (apresTitre === -1) return [];
+    const reste = texte.slice(apresTitre + 1);
+    const fin = reste.search(/^#{1,6}\s+/m);
+    texte = fin === -1 ? reste : reste.slice(0, fin);
   }
   const lignes = texte.split("\n").filter((l) => l.trim().startsWith("|"));
   if (lignes.length < 2) return [];

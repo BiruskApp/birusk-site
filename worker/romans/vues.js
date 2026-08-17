@@ -1,24 +1,18 @@
 /**
  * Interface de /prv/romans.
  *
- * Espace de lecture privé : on y consulte l'univers, pas on ne l'édite. Toute
- * modification passe par le dépôt et par une proposition validée.
- * Aucune requête externe : mêmes polices auto-hébergées que le site public.
+ * Espace de lecture privé : on y consulte les univers et les manuscrits, on ne
+ * les modifie pas. Toute modification passe par le dépôt et par une proposition
+ * validée. Aucune requête externe : mêmes polices auto-hébergées que le site
+ * public, mêmes jetons de couleur.
  */
 
 import { esc } from "./markdown.js";
 
 export const R = "/prv/romans";
 
-const NAV = [
-  ["", "Tableau de bord"],
-  ["/chapitres", "Chapitres"],
-  ["/personnages", "Personnages"],
-  ["/lieux", "Lieux"],
-  ["/relations", "Relations"],
-  ["/monde", "Monde"],
-  ["/propositions", "Propositions"],
-];
+export const lienU = (u) => `${R}/u/${encodeURIComponent(u)}`;
+export const lienO = (u, o) => `${lienU(u)}/o/${encodeURIComponent(o)}`;
 
 const STYLE = `
 @font-face{font-family:"Archivo";src:url("/assets/fonts/archivo-latin.woff2") format("woff2");
@@ -66,10 +60,14 @@ a.id:hover{border-bottom-color:currentColor}
 /* ── ossature ── */
 .haut{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);
   backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--rule)}
-.haut .rang{display:flex;align-items:center;gap:14px;padding:11px var(--pad);max-width:1180px;margin:0 auto}
+.haut .rang{display:flex;align-items:center;gap:12px;padding:10px var(--pad);max-width:1180px;margin:0 auto;
+  flex-wrap:wrap}
 .marque{font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
   text-decoration:none;color:var(--accent);white-space:nowrap}
-.marque span{color:var(--muted);font-weight:500}
+.fil{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);min-width:0}
+.fil a{text-decoration:none}
+.fil a:hover{color:var(--fg)}
+.fil b{font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
 nav::-webkit-scrollbar{display:none}
 nav a{text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:999px;
@@ -90,6 +88,9 @@ footer a{color:var(--muted)}
 .carte:hover{border-color:var(--accent);transform:translateY(-2px)}
 .carte h3{margin:0 0 5px;font-size:17px}
 .carte p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.carte .sous{display:block;margin-top:9px;font-size:12px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.05em}
+.grande{grid-column:1/-1}
 .rangee{display:flex;align-items:baseline;gap:12px;padding:13px 0;border-bottom:1px solid var(--rule);
   text-decoration:none}
 .rangee:hover .titre{color:var(--accent)}
@@ -144,19 +145,57 @@ footer a{color:var(--muted)}
 
 // ── ossature ────────────────────────────────────────────────────────────────
 
-export function page({ titre, actif = "", contenu, large = false }) {
+/**
+ * @param {object} ou  contexte de lecture : { univers:{nom,titre}, oeuvre:{nom,titre} }
+ *                     Il détermine le fil d'Ariane et les onglets disponibles.
+ */
+function navigation(ou, actif) {
+  const entrees = [];
+  if (ou?.univers) {
+    const u = ou.univers.nom;
+    entrees.push([lienU(u), "Univers", "univers"]);
+    if (ou.oeuvre) {
+      const o = ou.oeuvre.nom;
+      entrees.push([`${lienO(u, o)}/chapitres`, "Chapitres", "chapitres"]);
+    }
+    entrees.push(
+      [`${lienU(u)}/personnages`, "Personnages", "personnages"],
+      [`${lienU(u)}/lieux`, "Lieux", "lieux"],
+      [`${lienU(u)}/relations`, "Relations", "relations"],
+      [`${lienU(u)}/monde`, "Monde", "monde"],
+    );
+  } else {
+    entrees.push([R, "Accueil", "accueil"]);
+  }
+  entrees.push([`${R}/propositions`, "Propositions", "propositions"]);
+  return entrees.map(([voie, nom, cle]) =>
+    `<a href="${voie}"${cle === actif ? ' aria-current="page"' : ""}>${nom}</a>`).join("");
+}
+
+function fil(ou) {
+  if (!ou?.univers) return "";
+  const u = ou.univers;
+  const morceaux = [`<a href="${R}">Tous les univers</a>`, "›",
+                    `<b><a href="${lienU(u.nom)}">${esc(u.titre)}</a></b>`];
+  if (ou.oeuvre) {
+    morceaux.push("›", `<b>${esc(ou.oeuvre.titre)}</b>`);
+  }
+  return `<div class="fil">${morceaux.join(" ")}</div>`;
+}
+
+export function page({ titre, actif = "", contenu, ou = null }) {
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow"><meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#9d1b2f">
 <title>${esc(titre)} — Romans</title><style>${STYLE}</style></head><body>
 <header class="haut"><div class="rang">
-<a class="marque" href="${R}">Romans <span>· privé</span></a>
-<nav>${NAV.map(([voie, nom]) =>
-    `<a href="${R}${voie}"${voie === actif ? ' aria-current="page"' : ""}>${nom}</a>`).join("")}</nav>
+<a class="marque" href="${R}">Romans</a>
+${fil(ou)}
+<nav>${navigation(ou, actif)}</nav>
 </div></header>
-<main${large ? "" : ""}>${contenu}</main>
-<footer><span>Espace privé — la lecture seule ; toute modification passe par une proposition.</span>
+<main>${contenu}</main>
+<footer><span>Espace privé — lecture seule ; toute modification passe par une proposition.</span>
 <a href="${R}/sortie">Se déconnecter</a></footer>
 </body></html>`;
 }
@@ -180,7 +219,9 @@ const puce = (texte, style = "") =>
 
 const vide = (message) => `<div class="vide">${esc(message)}</div>`;
 
-const retour = (voie, nom) => `<a class="retour" href="${R}${voie}">← ${esc(nom)}</a>`;
+const retour = (voie, nom) => `<a class="retour" href="${voie}">← ${esc(nom)}</a>`;
+
+const nombre = (n) => (n || 0).toLocaleString("fr-FR");
 
 export const erreur = (message, indication = "") => page({
   titre: "Indisponible",
@@ -188,29 +229,53 @@ export const erreur = (message, indication = "") => page({
 <p class="chapo">${esc(message)}</p>${indication ? `<div class="avis"><p>${indication}</p></div>` : ""}`,
 });
 
-// ── tableau de bord ─────────────────────────────────────────────────────────
+// ── accueil : tous les univers ──────────────────────────────────────────────
 
-export function tableauDeBord({ chapitres, personnages, promesses, questions, passe, journal, prs }) {
-  const mots = chapitres.reduce((n, c) => n + (c.mots || 0), 0);
-  const ouvertes = promesses.filter((p) => !p.tenue);
+export function accueil({ univers, passe, journal, prs }) {
   const gele = /EN ATTENTE/i.test(passe.statut);
-
-  return page({ titre: "Tableau de bord", actif: "", contenu: `
-<h1>Tableau de bord</h1>
-<p class="chapo">État du chantier, lu directement dans le dépôt. Cette page se met à
-jour d'elle-même à chaque proposition fusionnée.</p>
+  return page({ titre: "Univers", actif: "accueil", contenu: `
+<h1>Univers</h1>
+<p class="chapo">Chaque univers a son canon — monde, système, personnages,
+chronologie — partagé par tous les livres qui s'y déroulent. Deux univers sont
+étanches : rien ne passe de l'un à l'autre.</p>
 
 ${gele ? `<div class="avis"><p><strong>Chantier gelé.</strong> ${esc(passe.statut)} —
-aucune écriture n'est autorisée tant que le brief du premier roman n'a pas été fourni.
-C'est volontaire : cela empêche une passe automatique d'inventer un univers avant que
-vous ayez décidé lequel.</p></div>` : ""}
+aucune écriture n'est autorisée tant que le brief du premier roman n'a pas été
+fourni. C'est volontaire : cela empêche une passe automatique d'inventer un
+univers avant que vous ayez décidé lequel.</p></div>` : ""}
+
+${univers.length ? `<div class="grille">${univers.map((u) => `
+<a class="carte" href="${lienU(u.nom)}">
+  <h3>${esc(u.titre)}</h3>
+  <p>${esc(u.resume).slice(0, 150)}</p>
+  <span class="sous">${u.oeuvres.length} œuvre${u.oeuvres.length > 1 ? "s" : ""}${
+    u.oeuvres.length ? " · " + u.oeuvres.map((o) => esc(o.titre)).join(", ") : ""}</span>
+</a>`).join("")}</div>`
+    : vide("Aucun univers. Le premier sera créé dès que le brief sera fourni.")}
+
+${prs.length ? `<h2>Propositions à relire</h2>
+${prs.slice(0, 5).map((p) => `<a class="rangee" href="${R}/propositions#pr-${p.numero}">
+<span class="num">#${p.numero}</span><span class="titre">${esc(p.titre)}</span>
+<span class="fin">${p.brouillon ? "brouillon" : "prête"}</span></a>`).join("")}` : ""}
+
+${journal.length ? `<h2>Journal du dépôt</h2>
+<ul class="flanc">${journal.map((j) => `<li>${esc(j)}</li>`).join("")}</ul>` : ""}
+` });
+}
+
+// ── tableau de bord d'un univers ────────────────────────────────────────────
+
+export function tableauUnivers(u, { oeuvres, personnages, chapitres, questions, html }) {
+  const mots = chapitres.reduce((n, c) => n + (c.mots || 0), 0);
+  return page({ titre: u.titre, actif: "univers", ou: { univers: u }, contenu: `
+<h1>${esc(u.titre)}</h1>
+${u.resume ? `<p class="chapo">${esc(u.resume)}</p>` : ""}
 
 <div class="chiffres">
+  <div class="chiffre"><b>${oeuvres.length}</b><span>Œuvres</span></div>
   <div class="chiffre"><b>${chapitres.length}</b><span>Chapitres</span></div>
-  <div class="chiffre"><b>${mots.toLocaleString("fr-FR")}</b><span>Mots</span></div>
+  <div class="chiffre"><b>${nombre(mots)}</b><span>Mots</span></div>
   <div class="chiffre"><b>${personnages.length}</b><span>Personnages</span></div>
-  <div class="chiffre"><b>${ouvertes.length}</b><span>Promesses ouvertes</span></div>
-  <div class="chiffre"><b>${prs.length}</b><span>Propositions</span></div>
 </div>
 
 ${questions.length ? `<h2>En attente de votre arbitrage</h2>
@@ -219,37 +284,72 @@ plutôt que de trancher seul.</p></div>
 ${questions.map((q) => `<div class="rangee"><span class="num">${esc(q.id.replace("QO-", ""))}</span>
 <span class="titre">${esc(q.titre)}</span></div>`).join("")}` : ""}
 
-${prs.length ? `<h2>Propositions à relire</h2>
-${prs.slice(0, 5).map((p) => `<a class="rangee" href="${R}/propositions#pr-${p.numero}">
-<span class="num">#${p.numero}</span><span class="titre">${esc(p.titre)}</span>
-<span class="fin">${p.brouillon ? "brouillon" : "prête"}</span></a>`).join("")}` : ""}
+<h2>Œuvres</h2>
+${oeuvres.length ? `<div class="grille">${oeuvres.map((o) => `
+<a class="carte" href="${lienO(u.nom, o.nom)}">
+  <h3>${esc(o.titre)}</h3>
+  <p>${esc(o.resume).slice(0, 150)}</p>
+  <span class="sous">${o.ordre ? `Tome ${o.ordre} · ` : ""}${esc(o.statut)}</span>
+</a>`).join("")}</div>`
+    : vide("Aucune œuvre dans cet univers. Le canon peut se construire avant le premier livre.")}
 
-${passe.objectif ? `<h2>Prochaine passe</h2><div class="etroit"><p>${esc(passe.objectif).slice(0, 600)}</p></div>` : ""}
+${html ? `<h2>À propos de cet univers</h2><div class="etroit">${html}</div>` : ""}
+` });
+}
 
-${journal.length ? `<h2>Journal</h2>
-<ul class="flanc">${journal.map((j) => `<li>${esc(j)}</li>`).join("")}</ul>` : ""}
+// ── tableau de bord d'une œuvre ─────────────────────────────────────────────
+
+export function tableauOeuvre(u, o, { chapitres, promesses, html }) {
+  const mots = chapitres.reduce((n, c) => n + (c.mots || 0), 0);
+  const ouvertes = promesses.filter((p) => !p.tenue);
+  return page({ titre: o.titre, actif: "univers", ou: { univers: u, oeuvre: o }, contenu: `
+<h1>${esc(o.titre)}</h1>
+<div class="meta">${o.ordre ? `<span>Tome ${o.ordre}</span>` : ""}${puce(o.statut, "douce")}</div>
+${o.resume ? `<p class="chapo">${esc(o.resume)}</p>` : ""}
+
+<div class="chiffres">
+  <div class="chiffre"><b>${chapitres.length}</b><span>Chapitres</span></div>
+  <div class="chiffre"><b>${nombre(mots)}</b><span>Mots</span></div>
+  <div class="chiffre"><b>${ouvertes.length}</b><span>Promesses ouvertes</span></div>
+</div>
+
+${chapitres.length ? `<h2>Manuscrit</h2>
+${chapitres.slice(0, 8).map((c) => `<a class="rangee" href="${lienO(u.nom, o.nom)}/chapitres/${esc(c.id)}">
+<span class="num">${c.numero || "—"}</span><span class="titre">${esc(c.titre)}</span>
+<span class="fin">${nombre(c.mots)} mots</span></a>`).join("")}
+${chapitres.length > 8 ? `<p style="margin-top:18px"><a class="id" href="${lienO(u.nom, o.nom)}/chapitres">Voir les ${chapitres.length} chapitres →</a></p>` : ""}`
+    : vide("Le manuscrit n'a pas commencé.")}
+
+${ouvertes.length ? `<h2>Promesses ouvertes</h2>
+<div class="table-flottante"><table><thead><tr><th>Promesse</th><th>Type</th><th>Posée au</th></tr></thead>
+<tbody>${ouvertes.map((p) => `<tr><td>${esc(p.texte)}</td><td>${esc(p.type)}</td><td>${esc(p.posee)}</td></tr>`).join("")}
+</tbody></table></div>` : ""}
+
+${html ? `<h2>À propos de ce livre</h2><div class="etroit">${html}</div>` : ""}
 ` });
 }
 
 // ── chapitres ───────────────────────────────────────────────────────────────
 
-export function listeChapitres(chapitres, nom) {
-  return page({ titre: "Chapitres", actif: "/chapitres", contenu: `
+export function listeChapitres(u, o, chapitres, nom) {
+  return page({ titre: `${o.titre} — chapitres`, actif: "chapitres",
+    ou: { univers: u, oeuvre: o }, contenu: `
 <h1>Chapitres</h1>
 <p class="chapo">${chapitres.length ? `${chapitres.length} chapitre${chapitres.length > 1 ? "s" : ""}, ` +
-    `${chapitres.reduce((n, c) => n + (c.mots || 0), 0).toLocaleString("fr-FR")} mots.`
+    `${nombre(chapitres.reduce((n, c) => n + (c.mots || 0), 0))} mots.`
     : "Le manuscrit n'a pas commencé."}</p>
-${chapitres.length ? chapitres.map((c) => `<a class="rangee" href="${R}/chapitres/${esc(c.id)}">
+${chapitres.length ? chapitres.map((c) => `<a class="rangee" href="${lienO(u.nom, o.nom)}/chapitres/${esc(c.id)}">
 <span class="num">${c.numero || "—"}</span>
 <span class="titre">${esc(c.titre)}</span>
-<span class="fin">${c.pov ? esc(nom(c.pov)) + " · " : ""}${(c.mots || 0).toLocaleString("fr-FR")} mots · ${esc(c.statut)}</span>
+<span class="fin">${c.pov ? esc(nom(c.pov)) + " · " : ""}${nombre(c.mots)} mots · ${esc(c.statut)}</span>
 </a>`).join("") : vide("Aucun chapitre. Le manuscrit commencera une fois le canon posé.")}
 ` });
 }
 
-export function unChapitre(c, { html, nom, precedent, suivant }) {
-  return page({ titre: c.titre, actif: "/chapitres", contenu: `
-${retour("/chapitres", "Chapitres")}
+export function unChapitre(u, o, c, { html, nom, precedent, suivant }) {
+  const base = lienO(u.nom, o.nom);
+  return page({ titre: c.titre, actif: "chapitres", ou: { univers: u, oeuvre: o }, contenu: `
+${retour(`${base}/chapitres`, "Chapitres")}
 <div class="deux"><div>
 <h1>${esc(c.titre)}</h1>
 <div class="meta">
@@ -261,12 +361,12 @@ ${retour("/chapitres", "Chapitres")}
 </div>
 <div class="texte">${html}</div>
 <div class="meta" style="margin-top:44px">
-  ${precedent ? `<a href="${R}/chapitres/${esc(precedent.id)}">← ${esc(precedent.titre)}</a>` : ""}
-  ${suivant ? `<a href="${R}/chapitres/${esc(suivant.id)}" style="margin-left:auto">${esc(suivant.titre)} →</a>` : ""}
+  ${precedent ? `<a href="${base}/chapitres/${esc(precedent.id)}">← ${esc(precedent.titre)}</a>` : ""}
+  ${suivant ? `<a href="${base}/chapitres/${esc(suivant.id)}" style="margin-left:auto">${esc(suivant.titre)} →</a>` : ""}
 </div>
 </div><aside class="flanc">
 ${c.personnages.length ? `<h4>Présents</h4><ul>${c.personnages.map((p) =>
-    `<li><a class="id" href="${R}/personnages/${esc(p)}">${esc(nom(p))}</a></li>`).join("")}</ul>` : ""}
+    `<li><a class="id" href="${lienU(u.nom)}/personnages/${esc(p)}">${esc(nom(p))}</a></li>`).join("")}</ul>` : ""}
 ${c.lieux.length ? `<h4>Lieux</h4><ul>${c.lieux.map((l) => `<li>${esc(nom(l))}</li>`).join("")}</ul>` : ""}
 ${c.revelations.length ? `<h4>Révélations</h4><ul>${c.revelations.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
 ${c.promessesPosees.length ? `<h4>Promesses posées</h4><ul>${c.promessesPosees.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
@@ -277,22 +377,23 @@ ${c.promessesTenues.length ? `<h4>Promesses tenues</h4><ul>${c.promessesTenues.m
 
 // ── personnages ─────────────────────────────────────────────────────────────
 
-export function listePersonnages(personnages) {
-  return page({ titre: "Personnages", actif: "/personnages", contenu: `
+export function listePersonnages(u, personnages) {
+  return page({ titre: "Personnages", actif: "personnages", ou: { univers: u }, contenu: `
 <h1>Personnages</h1>
-<p class="chapo">${personnages.length ? "Fiches complètes : désir, peur, voix, arc, relations."
-    : "Aucun personnage n'a encore été canonisé."}</p>
+<p class="chapo">${personnages.length
+    ? "Fiches complètes : désir, peur, voix, arc, relations. Un personnage appartient à l'univers et peut traverser plusieurs livres."
+    : "Aucun personnage n'a encore été canonisé dans cet univers."}</p>
 ${personnages.length ? `<div class="grille">${personnages.map((p) => `
-<a class="carte" href="${R}/personnages/${esc(p.id)}">
+<a class="carte" href="${lienU(u.nom)}/personnages/${esc(p.id)}">
   <h3>${esc(p.nom)}</h3>
   <p>${puce(p.role, p.role === "protagoniste" ? "vif" : "")} ${esc(p.resume).slice(0, 130)}</p>
 </a>`).join("")}</div>` : vide("Les fiches apparaîtront ici dès que le premier personnage sera canonisé.")}
 ` });
 }
 
-export function unPersonnage(p, { html, apparitions, liens, nom, savoir }) {
-  return page({ titre: p.nom, actif: "/personnages", contenu: `
-${retour("/personnages", "Personnages")}
+export function unPersonnage(u, p, { html, apparitions, liens, nom, savoir }) {
+  return page({ titre: p.nom, actif: "personnages", ou: { univers: u }, contenu: `
+${retour(`${lienU(u.nom)}/personnages`, "Personnages")}
 <div class="deux"><div>
 <h1>${esc(p.nom)}</h1>
 <div class="meta">${puce(p.role, "douce")}${puce(p.statut, "douce")}
@@ -300,10 +401,10 @@ ${p.premiere ? `<span>Première apparition : ${esc(String(p.premiere))}</span>` 
 <div class="etroit">${html}</div>
 </div><aside class="flanc">
 ${liens.length ? `<h4>Liens</h4><ul>${liens.map((l) =>
-    `<li><a class="id" href="${R}/personnages/${esc(l.id)}">${esc(nom(l.id))}</a>
+    `<li><a class="id" href="${lienU(u.nom)}/personnages/${esc(l.id)}">${esc(nom(l.id))}</a>
      ${l.nature ? `<br><span style="color:var(--muted);font-size:12.5px">${esc(l.nature)}</span>` : ""}</li>`).join("")}</ul>` : ""}
 ${apparitions.length ? `<h4>Apparaît dans</h4><ul>${apparitions.map((c) =>
-    `<li><a class="id" href="${R}/chapitres/${esc(c.id)}">${c.numero || "—"} · ${esc(c.titre)}</a></li>`).join("")}</ul>` : ""}
+    `<li><a class="id" href="${lienO(u.nom, c.oeuvre)}/chapitres/${esc(c.id)}">${esc(c.titreOeuvre)} — ${c.numero || "—"} · ${esc(c.titre)}</a></li>`).join("")}</ul>` : ""}
 ${savoir.length ? `<h4>Sait</h4><ul>${savoir.map((s) =>
     `<li>${esc(s.revelation)} <span style="color:var(--muted)">— ch. ${esc(s.chapitre || "?")}, ${esc(s.etat)}</span></li>`).join("")}</ul>` : ""}
 <h4>Source</h4><ul><li><a class="id" href="${esc(p.lienDepot)}" target="_blank" rel="noopener">Fiche dans le dépôt ↗</a></li></ul>
@@ -313,12 +414,12 @@ ${savoir.length ? `<h4>Sait</h4><ul>${savoir.map((s) =>
 
 // ── lieux et factions ───────────────────────────────────────────────────────
 
-export function listeLieux(lieux, factions) {
+export function listeLieux(u, lieux, factions) {
   const bloc = (titre, liste, message) => `<h2>${titre}</h2>
 ${liste.length ? `<div class="grille">${liste.map((e) => `
 <div class="carte"><h3>${esc(e.nom)}</h3><p>${esc(e.resume).slice(0, 150)}</p></div>`).join("")}</div>`
     : vide(message)}`;
-  return page({ titre: "Lieux et factions", actif: "/lieux", contenu: `
+  return page({ titre: "Lieux et factions", actif: "lieux", ou: { univers: u }, contenu: `
 <h1>Lieux et factions</h1>
 <p class="chapo">La carte n'est pas un décor : elle explique qui est riche, qui a faim,
 et pourquoi la guerre a lieu ici plutôt qu'ailleurs.</p>
@@ -329,10 +430,10 @@ ${bloc("Factions", factions, "Aucune faction canonisée.")}
 
 // ── relations ───────────────────────────────────────────────────────────────
 
-export function relations({ sommets, aretes }) {
+export function relations(u, { sommets, aretes }) {
   if (!sommets.length) {
-    return page({ titre: "Relations", actif: "/relations", contenu:
-      `<h1>Relations</h1>${vide("Le graphe se dessinera dès qu'il y aura des personnages.")}` });
+    return page({ titre: "Relations", actif: "relations", ou: { univers: u },
+      contenu: `<h1>Relations</h1>${vide("Le graphe se dessinera dès qu'il y aura des personnages.")}` });
   }
 
   const n = sommets.length;
@@ -355,13 +456,13 @@ export function relations({ sommets, aretes }) {
   const noeuds = position.map((p) => {
     const droite = Math.cos(p.angle) > -0.01;
     const dx = droite ? 15 : -15;
-    return `<a href="${R}/personnages/${esc(p.id)}">
+    return `<a href="${lienU(u.nom)}/personnages/${esc(p.id)}">
 <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="6"></circle>
 <text x="${(p.x + dx).toFixed(1)}" y="${(p.y + 4).toFixed(1)}" text-anchor="${droite ? "start" : "end"}">${esc(p.nom)}</text>
 </a>`;
   }).join("");
 
-  return page({ titre: "Relations", actif: "/relations", contenu: `
+  return page({ titre: "Relations", actif: "relations", ou: { univers: u }, contenu: `
 <h1>Relations</h1>
 <p class="chapo">${aretes.length} lien${aretes.length > 1 ? "s" : ""} entre ${n} personnage${n > 1 ? "s" : ""},
 reconstruits depuis les tables « Relations » de chaque fiche. Touchez un nom pour ouvrir sa fiche.</p>
@@ -381,28 +482,30 @@ const JOLI = {
   "40-chronologie": "Chronologie", "50-intrigue": "Intrigue",
 };
 
-export function monde(documents) {
+export function monde(u, documents) {
   const groupes = {};
   for (const chemin of documents) {
-    const dossier = chemin.split("/")[0];
+    const dossier = chemin.split("/")[2];      // univers/<nom>/<dossier>/…
     (groupes[JOLI[dossier] ?? dossier] ??= []).push(chemin);
   }
-  return page({ titre: "Monde", actif: "/monde", contenu: `
+  return page({ titre: "Monde", actif: "monde", ou: { univers: u }, contenu: `
 <h1>Le monde</h1>
 <p class="chapo">Les fiches techniques : invariants, règles dures du système, société,
-chronologie, structure de l'intrigue. C'est le socle que le manuscrit ne peut pas contredire.</p>
+chronologie. C'est le socle que tous les livres de cet univers ne peuvent pas contredire.</p>
 ${Object.entries(groupes).map(([titre, liste]) => `<h2>${esc(titre)}</h2>
 <div class="grille">${liste.map((chemin) => {
     const nom = chemin.split("/").pop().replace(/\.md$/, "").replace(/-/g, " ");
-    return `<a class="carte" href="${R}/doc/${esc(chemin)}"><h3>${esc(nom)}</h3>
-<p>${esc(chemin)}</p></a>`;
+    return `<a class="carte" href="${lienU(u.nom)}/doc/${liste_encode(chemin)}"><h3>${esc(nom)}</h3>
+<p>${esc(chemin.split("/").slice(2).join("/"))}</p></a>`;
   }).join("")}</div>`).join("")}
 ` });
 }
 
-export const document_ = (titre, html, chemin, lien) => page({
-  titre, actif: "/monde", contenu: `
-${retour("/monde", "Monde")}
+const liste_encode = (chemin) => chemin.split("/").map(encodeURIComponent).join("/");
+
+export const document_ = (u, titre, html, chemin, lien) => page({
+  titre, actif: "monde", ou: { univers: u }, contenu: `
+${retour(`${lienU(u.nom)}/monde`, "Monde")}
 <div class="etroit"><h1>${esc(titre)}</h1>
 <div class="meta"><a href="${esc(lien)}" target="_blank" rel="noopener">${esc(chemin)} ↗</a></div>
 ${html}</div>` });
@@ -410,7 +513,7 @@ ${html}</div>` });
 // ── propositions ────────────────────────────────────────────────────────────
 
 export function propositions(liste, rendreCorps) {
-  return page({ titre: "Propositions", actif: "/propositions", contenu: `
+  return page({ titre: "Propositions", actif: "propositions", contenu: `
 <h1>Propositions</h1>
 <p class="chapo">Le travail des passes automatiques, en attente de votre validation.
 Rien n'entre dans le canon avant que vous ayez tranché.</p>

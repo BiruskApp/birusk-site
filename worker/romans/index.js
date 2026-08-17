@@ -1,13 +1,22 @@
 /**
- * /prv/romans — espace de lecture privé de l'univers et du manuscrit.
+ * /prv/romans — espace de lecture privé des univers et des manuscrits.
  *
  * Lecture seule, et c'est délibéré : le dépôt reste la seule source de vérité.
  * Ce site en donne une vue navigable depuis un téléphone, sans jamais permettre
  * de modifier quoi que ce soit depuis le navigateur.
+ *
+ * Chemins :
+ *   /prv/romans                                   tous les univers
+ *   /prv/romans/u/<univers>                       tableau de bord de l'univers
+ *   /prv/romans/u/<univers>/personnages[/<id>]    le canon vivant
+ *   /prv/romans/u/<univers>/lieux | relations | monde | doc/<chemin>
+ *   /prv/romans/u/<univers>/o/<oeuvre>            tableau de bord du livre
+ *   /prv/romans/u/<univers>/o/<oeuvre>/chapitres[/<id>]
+ *   /prv/romans/propositions                      les PR en attente
  */
 
 import { sessionValide, ouvrirSession, fermerSession, codeJuste, tropDEssais } from "./auth.js";
-import { Depot, graphe } from "./canon.js";
+import { Depot, graphe, journal, prochainePasse } from "./canon.js";
 import { DepotIndisponible, propositions as pullRequests, lienDepot } from "./github.js";
 import { rendre, separer } from "./markdown.js";
 import * as V from "./vues.js";
@@ -48,9 +57,7 @@ export async function servirRomans(request, env) {
     return html(V.connexion("Code incorrect."), 401);
   }
 
-  if (reste === "/sortie") {
-    return versLa(BASE, { "set-cookie": fermerSession() });
-  }
+  if (reste === "/sortie") return versLa(BASE, { "set-cookie": fermerSession() });
 
   if (!(await sessionValide(request, env))) {
     if (!env.ROMANS_CODE || !env.ROMANS_SECRET) {
@@ -59,14 +66,13 @@ export async function servirRomans(request, env) {
     return html(V.connexion(), 401);
   }
 
-  // ── contenu ──
   try {
     return await router(reste, env);
   } catch (e) {
     if (e instanceof DepotIndisponible) {
       const aide = e.statut === 503
-        ? "Le secret <code>ROMANS_GH_TOKEN</code> n'est pas encore installé. Le reste du site fonctionne."
-        : "Vérifiez que le jeton GitHub est valide et qu'il donne accès en lecture à <code>BiruskApp/Books</code>.";
+        ? "Le secret <code>ROMANS_GH_TOKEN</code> n'est pas installé. Le reste du site fonctionne."
+        : "Vérifiez que le jeton GitHub est valide et donne accès en lecture à <code>BiruskApp/Books</code>.";
       return html(V.erreur(e.message, aide), e.statut === 404 ? 404 : 503);
     }
     console.error("romans", e?.stack ?? e);
@@ -74,66 +80,72 @@ export async function servirRomans(request, env) {
   }
 }
 
+// ── routage ─────────────────────────────────────────────────────────────────
+
 async function router(reste, env) {
   const depot = new Depot(env);
 
-  // Rend un identifiant lisible et cliquable dans le corps des fiches.
-  const contexte = (noms) => ({
-    identifiant: (id) => (noms.has(id) ? lienVers(id) : null),
-    interne: (chemin) => `${BASE}/doc/${chemin.replace(/^\.\//, "")}`,
-  });
-
   if (reste === "" || reste === "/") {
-    const [chapitres, personnages, promesses, questions, passe, journal, prs] = await Promise.all([
-      depot.chapitres(), depot.personnages(), depot.promesses(),
-      depot.questionsOuvertes(), depot.prochainePasse(), depot.journal(),
+    const [univers, passe, entrees, prs] = await Promise.all([
+      depot.univers(), prochainePasse(depot), journal(depot),
       pullRequests(env).catch(() => []),
     ]);
-    return html(V.tableauDeBord({ chapitres, personnages, promesses, questions, passe, journal, prs }));
+    return html(V.accueil({ univers, passe, journal: entrees, prs }));
   }
 
-  if (reste === "/chapitres") {
-    const [chapitres, personnages] = await Promise.all([depot.chapitres(), depot.personnages()]);
-    return html(V.listeChapitres(chapitres, nommeur(personnages)));
+  if (reste === "/propositions") {
+    return html(V.propositions(await pullRequests(env), (corps) => rendre(corps, {})));
   }
 
-  if (reste.startsWith("/chapitres/")) {
-    const id = decodeURIComponent(reste.slice("/chapitres/".length));
-    const [chapitres, personnages, lieux] = await Promise.all([
-      depot.chapitres(), depot.personnages(), depot.lieux(),
+  const chemin = reste.split("/").filter(Boolean).map(decodeURIComponent);
+  if (chemin[0] !== "u" || !chemin[1]) return html(V.erreur("Page inconnue."), 404);
+
+  const monde = depot.monde(chemin[1]);
+  if (!(await monde.existe())) return html(V.erreur("Cet univers n'existe pas."), 404);
+  const u = await monde.identite();
+
+  // /u/<univers>/o/<oeuvre>/…
+  if (chemin[2] === "o") {
+    if (!chemin[3]) return html(V.erreur("Œuvre manquante."), 404);
+    return routerOeuvre(monde, u, chemin[3], chemin.slice(4), env);
+  }
+
+  return routerUnivers(monde, u, chemin.slice(2), env);
+}
+
+async function routerUnivers(monde, u, suite, env) {
+  const [section, argument] = suite;
+
+  if (!section) {
+    const [oeuvres, personnages, chapitres, questions] = await Promise.all([
+      monde.oeuvres(), monde.personnages(), monde.tousChapitres(), monde.questionsOuvertes(),
     ]);
-    const rang = chapitres.findIndex((c) => c.id === id);
-    if (rang === -1) return html(V.erreur("Ce chapitre n'existe pas."), 404);
-    const noms = index(personnages, lieux);
-    return html(V.unChapitre(chapitres[rang], {
-      html: rendre(depouiller(chapitres[rang].corps), contexte(noms)),
-      nom: nommeur(personnages, lieux),
-      precedent: chapitres[rang - 1] ?? null,
-      suivant: chapitres[rang + 1] ?? null,
+    const noms = index(personnages);
+    return html(V.tableauUnivers(u, {
+      oeuvres, personnages, chapitres, questions,
+      html: u.corps ? rendre(depouiller(u.corps), contexte(u, noms)) : "",
     }));
   }
 
-  if (reste === "/personnages") {
-    return html(V.listePersonnages(await depot.personnages()));
+  if (section === "personnages" && !argument) {
+    return html(V.listePersonnages(u, await monde.personnages()));
   }
 
-  if (reste.startsWith("/personnages/")) {
-    const id = decodeURIComponent(reste.slice("/personnages/".length));
+  if (section === "personnages") {
     const [personnages, chapitres, savoir] = await Promise.all([
-      depot.personnages(), depot.chapitres(), depot.savoir(),
+      monde.personnages(), monde.tousChapitres(), monde.savoir(),
     ]);
-    const p = personnages.find((x) => x.id === id);
-    if (!p) return html(V.erreur("Ce personnage n'existe pas."), 404);
-    const noms = index(personnages);
+    const p = personnages.find((x) => x.id === argument);
+    if (!p) return html(V.erreur("Ce personnage n'existe pas dans cet univers."), 404);
     const { aretes } = graphe(personnages);
-    return html(V.unPersonnage({ ...p, lienDepot: lienDepot(p.chemin) }, {
-      html: rendre(p.corps, contexte(noms)),
-      apparitions: chapitres.filter((c) => c.personnages.includes(id) || c.pov === id),
-      liens: aretes.filter((a) => a.de === id || a.vers === id)
-        .map((a) => ({ id: a.de === id ? a.vers : a.de, nature: a.nature })),
+    return html(V.unPersonnage(u, { ...p, lienDepot: lienDepot(p.chemin, env) }, {
+      html: rendre(p.corps, contexte(u, index(personnages))),
+      apparitions: chapitres.filter((c) => c.personnages.includes(p.id) || c.pov === p.id),
+      liens: aretes.filter((a) => a.de === p.id || a.vers === p.id)
+        .map((a) => ({ id: a.de === p.id ? a.vers : a.de, nature: a.nature })),
       nom: nommeur(personnages),
       savoir: savoir.table
-        .filter((l) => Object.values(l).includes(id) || Object.values(l).includes("`" + id + "`"))
+        .filter((l) => Object.values(l).some((v) => v.replace(/`/g, "") === p.id))
         .map((l) => {
           const c = Object.values(l);
           return { revelation: c[1] ?? "", chapitre: c[2] ?? "", etat: c[4] ?? c[3] ?? "" };
@@ -141,36 +153,71 @@ async function router(reste, env) {
     }));
   }
 
-  if (reste === "/lieux") {
-    const [lieux, factions] = await Promise.all([depot.lieux(), depot.factions()]);
-    return html(V.listeLieux(lieux, factions));
+  if (section === "lieux") {
+    const [lieux, factions] = await Promise.all([monde.lieux(), monde.factions()]);
+    return html(V.listeLieux(u, lieux, factions));
   }
 
-  if (reste === "/relations") {
-    return html(V.relations(graphe(await depot.personnages())));
+  if (section === "relations") {
+    return html(V.relations(u, graphe(await monde.personnages())));
   }
 
-  if (reste === "/monde") {
-    return html(V.monde(await depot.documents()));
+  if (section === "monde") {
+    return html(V.monde(u, await monde.documents()));
   }
 
-  if (reste.startsWith("/doc/")) {
-    const chemin = decodeURIComponent(reste.slice("/doc/".length));
-    if (!chemin.endsWith(".md") || chemin.includes("..")) {
+  if (section === "doc") {
+    const cible = suite.slice(1).join("/");
+    if (!cible.endsWith(".md") || cible.includes("..")) {
       return html(V.erreur("Document invalide."), 400);
     }
-    const permis = await depot.documents();
-    if (!permis.includes(chemin)) return html(V.erreur("Ce document n'existe pas."), 404);
-    const source = await depot.lire(chemin);
-    const { meta, corps } = separer(source);
-    const noms = index(await depot.personnages());
-    const titre = meta.nom ?? /^#\s+(.+)$/m.exec(corps)?.[1] ?? chemin.split("/").pop();
-    return html(V.document_(titre, rendre(depouiller(corps), contexte(noms)), chemin, lienDepot(chemin)));
+    const permis = await monde.documents();
+    if (!permis.includes(cible)) return html(V.erreur("Ce document n'existe pas."), 404);
+    const { meta, corps } = separer(await monde.depot.lire(cible));
+    const titre = meta.nom ?? /^#\s+(.+)$/m.exec(corps)?.[1] ?? cible.split("/").pop();
+    const noms = index(await monde.personnages());
+    return html(V.document_(u, titre, rendre(depouiller(corps), contexte(u, noms)),
+                            cible.split("/").slice(2).join("/"), lienDepot(cible, env)));
   }
 
-  if (reste === "/propositions") {
-    const liste = await pullRequests(env);
-    return html(V.propositions(liste, (corps) => rendre(corps, {})));
+  return html(V.erreur("Page inconnue."), 404);
+}
+
+async function routerOeuvre(monde, u, nomOeuvre, suite, env) {
+  const oeuvres = await monde.oeuvres();
+  const o = oeuvres.find((x) => x.nom === nomOeuvre);
+  if (!o) return html(V.erreur("Cette œuvre n'existe pas dans cet univers."), 404);
+
+  const livre = monde.oeuvre(nomOeuvre);
+  const [section, argument] = suite;
+
+  if (!section) {
+    const [chapitres, promesses, personnages] = await Promise.all([
+      livre.chapitres(), livre.promesses(), monde.personnages(),
+    ]);
+    return html(V.tableauOeuvre(u, o, {
+      chapitres, promesses,
+      html: o.corps ? rendre(depouiller(o.corps), contexte(u, index(personnages))) : "",
+    }));
+  }
+
+  if (section === "chapitres" && !argument) {
+    const [chapitres, personnages] = await Promise.all([livre.chapitres(), monde.personnages()]);
+    return html(V.listeChapitres(u, o, chapitres, nommeur(personnages)));
+  }
+
+  if (section === "chapitres") {
+    const [chapitres, personnages, lieux] = await Promise.all([
+      livre.chapitres(), monde.personnages(), monde.lieux(),
+    ]);
+    const rang = chapitres.findIndex((c) => c.id === argument);
+    if (rang === -1) return html(V.erreur("Ce chapitre n'existe pas."), 404);
+    return html(V.unChapitre(u, o, chapitres[rang], {
+      html: rendre(depouiller(chapitres[rang].corps), contexte(u, index(personnages, lieux))),
+      nom: nommeur(personnages, lieux),
+      precedent: chapitres[rang - 1] ?? null,
+      suivant: chapitres[rang + 1] ?? null,
+    }));
   }
 
   return html(V.erreur("Page inconnue."), 404);
@@ -178,10 +225,12 @@ async function router(reste, env) {
 
 // ── outils ──────────────────────────────────────────────────────────────────
 
-const lienVers = (id) =>
-  id.startsWith("per-") ? `${BASE}/personnages/${id}`
-  : id.startsWith("cha-") ? `${BASE}/chapitres/${id}`
-  : null;
+/** Rend cliquables les identifiants du canon rencontrés dans le corps des fiches. */
+const contexte = (u, noms) => ({
+  identifiant: (id) =>
+    id.startsWith("per-") && noms.has(id) ? `${V.lienU(u.nom)}/personnages/${id}` : null,
+  interne: () => `${V.lienU(u.nom)}/monde`,
+});
 
 function index(...listes) {
   const m = new Map();
@@ -194,10 +243,10 @@ const nommeur = (...listes) => {
   return (id) => m.get(id) ?? id;
 };
 
-/** Retire le premier titre (repris par la page) et les blocs de consigne interne. */
+/** Retire le premier titre (repris par la page) et les consignes de gabarit. */
 function depouiller(corps) {
   return String(corps ?? "")
     .replace(/^#\s+.+\n/, "")
-    .replace(/^>\s*Copier ce fichier[\s\S]*?(?=\n\n)/m, "")
+    .replace(/^>\s*(Copier ce fichier|Gabarit)[\s\S]*?(?=\n\n)/m, "")
     .trim();
 }
