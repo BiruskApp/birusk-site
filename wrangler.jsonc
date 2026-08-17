@@ -3,13 +3,13 @@
   // Les requêtes vers les assets statiques ne sont pas facturées.
   "name": "birusk-site",
   "compatibility_date": "2026-08-10",
-  // Le site reste statique : le Worker n'est invoqué que sur /api/*.
-  // Tout le reste est servi depuis dist/ sans exécuter une ligne de code.
+  // Le site public reste statique : le Worker n'est invoqué que sur /api/* et
+  // /prv/*. Tout le reste est servi depuis dist/ sans exécuter une ligne de code.
   "main": "./worker/index.js",
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/prv", "/prv/*"]
   },
   "send_email": [
     { "name": "EMAIL", "allowed_destination_addresses": ["contact@birusk.app"] }

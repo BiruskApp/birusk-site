@@ -1,13 +1,16 @@
 /**
  * birusk.app — point d'entrée serveur.
  *
- * Le site reste entièrement statique : ce Worker n'est appelé que sur /api/*,
- * grâce à `run_worker_first` dans wrangler.jsonc. Tout le reste est servi
- * directement depuis dist/, sans passer par ce code.
+ * Le site public reste entièrement statique : ce Worker n'est appelé que sur
+ * /api/* et /prv/*, grâce à `run_worker_first` dans wrangler.jsonc. Tout le
+ * reste est servi directement depuis dist/, sans passer par ce code.
  *
  *   GET  /api/token     délivre un jeton signé, valable une demi-heure
  *   POST /api/contact   valide le message et l'expédie à contact@birusk.app
+ *   GET  /prv/romans    espace de lecture privé (voir worker/romans/)
  */
+
+import { servirRomans } from "./romans/index.js";
 
 /* Unique destination possible : wrangler.jsonc restreint la liaison à cette
    seule adresse, si bien qu'une erreur de code ne peut pas expédier ailleurs.
@@ -132,6 +135,14 @@ function compose(f, request) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // Espace privé : entièrement séparé du site public, qui ne dépend pas de lui.
+    if (url.pathname === "/prv" || url.pathname.startsWith("/prv/")) {
+      if (!url.pathname.startsWith("/prv/romans")) {
+        return Response.redirect(new URL("/prv/romans", url), 302);
+      }
+      return servirRomans(request, env);
+    }
 
     if (url.pathname === "/api/token" && request.method === "GET") {
       const stamp = Date.now();
